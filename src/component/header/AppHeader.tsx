@@ -1,10 +1,12 @@
 import { Button } from "antd";
 import { Header } from "antd/es/layout/layout";
-import { useAppDispatch } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
+import Logo from "../svg/Logo";
 
 const AppHeader = () => {
   const dispatch = useAppDispatch();
+  const { email } = useAppSelector((state) => state.userReducer);
   const handleLogout = () => {
     dispatch(setLogout());
   };
@@ -26,7 +28,18 @@ const AppHeader = () => {
           alignItems: "center",
         }}
       >
-        <h2>TodoApp</h2>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            height: "50px",
+            marginLeft: "-20px",
+          }}
+        >
+          <Logo styles={{ marginTop: "25px" }}></Logo>
+          <h2 style={{ marginLeft: "10px" }}>TodoApp</h2>
+        </div>
+        <div>ユーザー：{email}</div>
         <Button onClick={handleLogout}>ログアウト</Button>
       </div>
     </Header>

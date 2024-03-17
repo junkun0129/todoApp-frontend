@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import TextArea from "antd/es/input/TextArea";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { setLogout } from "../slice/authSlice";
+import AppCalendar from "../component/calendar/AppCalendar";
 type Task = {
   task_id: number;
   title: string;
@@ -257,8 +258,19 @@ const Home = () => {
             <div>Loading....</div>
           )}
         </Card>
-        <Card style={{ margin: 10, width: "50%", height: "95%" }}>
-          <h1>ダッシュボード</h1>
+
+        <Card
+          style={{
+            margin: 10,
+            width: "50%",
+            height: "95%",
+            overflow: "hidden",
+          }}
+        >
+          <h2>カレンダー</h2>
+          <motion.div style={{ marginTop: "-80px" }} animate={{ scale: 0.8 }}>
+            <AppCalendar />
+          </motion.div>
         </Card>
         <Modal
           okText="作成"

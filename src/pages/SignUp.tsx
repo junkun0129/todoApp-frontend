@@ -1,6 +1,7 @@
 import { Button, Form, Input } from "antd";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import Logo from "../component/svg/Logo";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -40,6 +41,19 @@ const SignUp = () => {
         position: "relative",
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          left: "30px",
+          top: 0,
+          display: "flex",
+          alignItems: "center",
+          marginTop: "20px",
+        }}
+      >
+        <Logo></Logo>
+        <div style={{ marginLeft: "15px" }}>todo APP</div>
+      </div>
       <Button
         style={{
           position: "absolute",

@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/store";
 import { setIsAuth, setToken } from "../slice/authSlice";
 import { motion } from "framer-motion";
+import Logo from "../component/svg/Logo";
+import { setEmail } from "../slice/userSlice";
 
 const SignIn = () => {
   const dispatch = useAppDispatch();
@@ -35,6 +37,7 @@ const SignIn = () => {
         if (data.result === "success") {
           dispatch(setIsAuth(true));
           console.log(data.data.token);
+          dispatch(setEmail(data.data.user.email));
           dispatch(setToken(data.data.token));
           navigate("/");
         } else {
@@ -55,6 +58,19 @@ const SignIn = () => {
         position: "relative",
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          left: "30px",
+          top: 0,
+          display: "flex",
+          alignItems: "center",
+          marginTop: "20px",
+        }}
+      >
+        <Logo></Logo>
+        <div style={{ marginLeft: "15px" }}>todo APP</div>
+      </div>
       <Button
         style={{
           position: "absolute",

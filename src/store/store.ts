@@ -4,7 +4,7 @@ import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import { AuthReducer } from "../slice/authSlice";
-
+import { userReducer } from "../slice/userSlice";
 const persisConfig = {
   key: "root",
   version: 1,
@@ -13,6 +13,7 @@ const persisConfig = {
 
 const reducer = combineReducers({
   AuthReducer,
+  userReducer,
 });
 
 const persistedReducer = persistReducer(persisConfig, reducer);
