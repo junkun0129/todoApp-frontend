@@ -6,7 +6,7 @@ import "./App.css";
 function App() {
   const [dataSource, setdataSource] = useState<any[]>();
   useEffect(() => {
-    fetch("http://localhost:3000/test/list")
+    fetch("https://todoapp-backend-0fle.onrender.com/test/list")
       .then((res: any) => {
         if (!res.ok) {
           throw new Error("network is not ok");
@@ -18,13 +18,7 @@ function App() {
         setdataSource(data);
       });
   }, []);
-  useEffect(() => {
-    console.log(
-      dataSource.map((item, i) => {
-        return item.age;
-      })
-    );
-  }, [dataSource]);
+  useEffect(() => {}, [dataSource]);
   return (
     <>
       {dataSource ? (
