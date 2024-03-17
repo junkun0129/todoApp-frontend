@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/store";
 import { setIsAuth, setToken } from "../slice/authSlice";
+import { motion } from "framer-motion";
 
 const SignIn = () => {
   const dispatch = useAppDispatch();
@@ -67,7 +68,7 @@ const SignIn = () => {
       >
         アカウントを作成する
       </Button>
-      <div
+      <motion.div
         style={{
           width: "40%",
           height: "50%",
@@ -76,6 +77,7 @@ const SignIn = () => {
           alignItems: "center",
           justifyContent: "center",
         }}
+        animate={{ scale: 1.2 }}
       >
         <h1 style={{ marginBottom: "50px" }}>ログイン画面</h1>
         <Form onFinish={handleSubmit}>
@@ -111,7 +113,7 @@ const SignIn = () => {
             ログイン
           </Button>
         </Form>
-      </div>
+      </motion.div>
     </div>
   );
 };

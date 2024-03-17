@@ -1,4 +1,5 @@
 import { Button, Form, Input } from "antd";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
@@ -52,7 +53,8 @@ const SignUp = () => {
       >
         ログイン画面へ
       </Button>
-      <div
+      <motion.div
+        animate={{ scale: 1.2 }}
         style={{
           width: "40%",
           height: "50%",
@@ -90,10 +92,10 @@ const SignUp = () => {
             htmlType="submit"
             type="primary"
           >
-            ログイン
+            アカウント作成
           </Button>
         </Form>
-      </div>
+      </motion.div>
     </div>
   );
 };
