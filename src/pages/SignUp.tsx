@@ -1,11 +1,8 @@
 import { Button, Form, Input } from "antd";
-import Title from "antd/es/typography/Title";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const form = Form.useFormInstance();
   const handleSubmit = (values: Record<string, any>) => {
     console.log(values);
     const options = {

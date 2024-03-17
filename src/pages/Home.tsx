@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ProtectedLayout from "../layout/ProtectedLayout";
 import {
   Button,
   Card,
-  ConfigProvider,
   Form,
   Input,
   Modal,

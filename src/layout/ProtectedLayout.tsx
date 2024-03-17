@@ -1,6 +1,6 @@
-import React, { Children, ReactNode, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { useAppSelector } from "../store/store";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   const { isAuth } = useAppSelector((state) => state.AuthReducer);

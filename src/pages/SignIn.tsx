@@ -1,12 +1,10 @@
 import { Button, Checkbox, Form, Input, message } from "antd";
-import Title from "antd/es/typography/Title";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/store";
 import { setIsAuth, setToken } from "../slice/authSlice";
 
 const SignIn = () => {
-  const form = Form.useFormInstance();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isStayLoggedIn, setisStayLoggedIn] = useState<boolean>(false);

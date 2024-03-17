@@ -1,6 +1,5 @@
 import { Button } from "antd";
 import { Header } from "antd/es/layout/layout";
-import React from "react";
 import { useAppDispatch } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
 

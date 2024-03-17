@@ -1,6 +1,5 @@
 import { Layout } from "antd";
-import { Content, Header } from "antd/es/layout/layout";
-import React from "react";
+import { Content } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
 import AppHeader from "../component/header/AppHeader";
 
