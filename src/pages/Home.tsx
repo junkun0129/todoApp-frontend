@@ -258,7 +258,10 @@ const Home = () => {
         <Modal
           okText="作成"
           cancelText="キャンセル"
-          onCancel={() => setisOpenCreateModal(false)}
+          onCancel={() => {
+            setisOpenCreateModal(false);
+            form.resetFields();
+          }}
           onOk={createTask}
           title="タスクの新規作成"
           open={isOpenCreateModal}
