@@ -36,8 +36,22 @@ const SignUp = () => {
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#EBE1D1",
+        position: "relative",
       }}
     >
+      <Button
+        style={{
+          position: "absolute",
+          right: "0px",
+          top: "0px",
+          margin: "30px",
+        }}
+        onClick={() => {
+          navigate("/signin");
+        }}
+      >
+        ログイン画面へ
+      </Button>
       <div
         style={{
           width: "40%",

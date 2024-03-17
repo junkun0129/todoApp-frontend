@@ -166,7 +166,12 @@ const Home = () => {
                   options as any
                 );
                 return (
-                  <motion.div whileHover={{ scale: 1.05 }}>
+                  <motion.div
+                    animate={{ scale: 1.04 }}
+                    exit={{ scale: 0.5 }}
+                    initial={{ scale: 0.7 }}
+                    whileHover={{ scale: 1.08 }}
+                  >
                     <Card
                       style={{
                         backgroundColor: "#F1E2D4",
