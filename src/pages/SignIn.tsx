@@ -5,7 +5,7 @@ import { useAppDispatch } from "../store/store";
 import { setIsAuth, setToken } from "../slice/authSlice";
 import { motion } from "framer-motion";
 import Logo from "../component/svg/Logo";
-import { setEmail } from "../slice/userSlice";
+import { setUser } from "../slice/userSlice";
 
 const SignIn = () => {
   const dispatch = useAppDispatch();
@@ -33,11 +33,12 @@ const SignIn = () => {
         }
       })
       .then((data: any) => {
-        console.log(data);
         if (data.result === "success") {
+          console.log(data.user);
+          console.log(data.data.user);
           dispatch(setIsAuth(true));
           console.log(data.data.token);
-          dispatch(setEmail(data.data.user.email));
+          dispatch(setUser(data.data.user));
           dispatch(setToken(data.data.token));
           navigate("/");
         } else {

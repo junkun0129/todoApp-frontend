@@ -5,6 +5,9 @@ import { persistReducer, persistStore } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import { AuthReducer } from "../slice/authSlice";
 import { userReducer } from "../slice/userSlice";
+import { taskApi } from "../api/taskApi";
+import { userApi } from "../api/userApi";
+import { fileApi } from "../api/fileApi";
 const persisConfig = {
   key: "root",
   version: 1,
@@ -19,11 +22,16 @@ const reducer = combineReducers({
 const persistedReducer = persistReducer(persisConfig, reducer);
 
 export const store = configureStore({
-  reducer: persistedReducer, // Remove the extra 'reducer' field
+  reducer: {
+    persistedReducer,
+    [taskApi.reducerPath]: taskApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
+    [fileApi.reducerPath]: fileApi.reducer,
+  }, // Remove the extra 'reducer' field
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }),
+    }).concat([taskApi.middleware, userApi.middleware, fileApi.middleware]),
 });
 
 export const persistor = persistStore(store);

@@ -5,11 +5,11 @@ import React from "react";
 import { Task } from "../../type/task";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
+import { useGetTaskListQuery } from "../../api/taskApi";
 type Props = {
   task: Task;
-  refetch: () => void;
 };
-const TodoCard = ({ task, refetch }: Props) => {
+const TodoCard = ({ task }: Props) => {
   const date = new Date(task.created_at);
   const options = {
     year: "numeric",
@@ -22,7 +22,11 @@ const TodoCard = ({ task, refetch }: Props) => {
   };
 
   const formattedDate = date.toLocaleString("ja-JP", options as any);
-  const token = useAppSelector((state) => state.AuthReducer.token);
+  const token = useAppSelector(
+    (state) => state.persistedReducer.AuthReducer.token
+  );
+  const TaskList = useGetTaskListQuery();
+
   const dispatch = useAppDispatch();
   const handleDelete = (id: number) => {
     const options = {
@@ -45,7 +49,7 @@ const TodoCard = ({ task, refetch }: Props) => {
       })
       .then((data: any) => {
         if (data.result === "success") {
-          refetch();
+          TaskList.refetch();
           message.success("タスクが削除されました");
         }
       });
