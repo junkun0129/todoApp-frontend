@@ -93,7 +93,7 @@ const TodoManage = () => {
             </Tooltip>
           </Space>
           <AnimatePresence>
-            {dataSource.map((item, i) => (
+            {dataSource.map((item) => (
               <TodoCard task={item}></TodoCard>
             ))}
           </AnimatePresence>
