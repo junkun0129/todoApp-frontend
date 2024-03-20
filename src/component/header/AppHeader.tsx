@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
 import Logo from "../svg/Logo";
 import { CSSProperties, useEffect, useState } from "react";
-import fallback from "../../assets/fallback.jpg";
 import { DownOutlined, UserOutlined } from "@ant-design/icons";
 import ProfileEditModal from "../modal/ProfileEditModal";
 const AppHeader = () => {

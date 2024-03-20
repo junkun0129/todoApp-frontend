@@ -1,7 +1,6 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Button, Card, Space, message } from "antd";
 import { motion } from "framer-motion";
-import React from "react";
 import { Task } from "../../type/task";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
