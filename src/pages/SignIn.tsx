@@ -1,13 +1,14 @@
 import { Button, Checkbox, Form, Input, message } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../store/store";
+import { persistor, useAppDispatch } from "../store/store";
 import { setIsAuth, setToken } from "../slice/authSlice";
 import { motion } from "framer-motion";
 import Logo from "../component/svg/Logo";
 import { setUser } from "../slice/userSlice";
 
 const SignIn = () => {
+  persistor.purge();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isStayLoggedIn, setisStayLoggedIn] = useState<boolean>(false);
