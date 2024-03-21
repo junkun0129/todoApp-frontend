@@ -1,6 +1,6 @@
 import { Button, Dropdown, MenuProps, Space } from "antd";
 import { Header } from "antd/es/layout/layout";
-import { useAppDispatch, useAppSelector } from "../../store/store";
+import { persistor, useAppDispatch, useAppSelector } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
 import Logo from "../svg/Logo";
 import { CSSProperties, useEffect, useState } from "react";
@@ -34,7 +34,10 @@ const AppHeader = () => {
       label: "ログアウト",
       key: "2",
       icon: <UserOutlined />,
-      onClick: () => handleLogout(),
+      onClick: () => {
+        persistor.purge();
+        handleLogout();
+      },
     },
   ];
   return (
