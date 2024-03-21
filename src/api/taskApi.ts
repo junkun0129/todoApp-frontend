@@ -11,7 +11,20 @@ export const taskApi = createApi({
         method: "GET",
       }),
     }),
+    testTaskPost: builder.mutation({
+      query: (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        console.log(file);
+
+        return {
+          url: "/task/test",
+          method: "POST",
+          body: formData,
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetTaskListQuery } = taskApi;
+export const { useGetTaskListQuery, useTestTaskPostMutation } = taskApi;

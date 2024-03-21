@@ -21,13 +21,14 @@ import {
 } from "../../api/userApi";
 import { setUser } from "../../slice/userSlice";
 import { useUpdateProfImageMutation } from "../../api/fileApi";
+import { useTestTaskPostMutation } from "../../api/taskApi";
 type Props = {
   ModalProps: ModalProps;
   onClose: () => void;
 };
 const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
   const [updateProfileMutation, {}] = useUpdateProfileMutation();
-  const [updateImageMutation] = useUpdateProfImageMutation();
+  const [updateTest] = useTestTaskPostMutation();
   const dispatch = useAppDispatch();
   const { email, lastName, firstName, img } = useAppSelector(
     (state) => state.persistedReducer.userReducer.user
@@ -37,12 +38,14 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
   useEffect(() => {
     if (getUser.isSuccess) {
       const user = getUser.data.data;
+      console.log(user, "koregauy");
+      console.log(user.img + "?tm=" + Date.now());
       dispatch(
         setUser({
           email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
-          img: user.profile_image_url,
+          img: user.img + "?tm=" + Date.now(),
         })
       );
     }
@@ -92,8 +95,13 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
     if (!event.target.files.length) return;
     const file = event.target.files[0];
 
-    updateImageMutation(file).then((res: any) => {
-      console.log(res);
+    updateTest(file).then((res: any) => {
+      if (!res.error) {
+        if (res.data.result === "success") {
+          getUser.refetch();
+          message.success("プロフィール画像の変更に成功しました");
+        }
+      }
     });
     inputRef.current.value = "";
   };
@@ -111,7 +119,12 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
           }}
         >
           <Space style={{ display: "flex", flexDirection: "column" }}>
-            <Image src={img}></Image>
+            <Image
+              width={150}
+              height={150}
+              style={{ objectFit: "contain" }}
+              src={img}
+            ></Image>
             <input
               type="file"
               accept=".jpg, .jpeg, .png"
@@ -125,14 +138,23 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
             style={{ height: "200px", marginLeft: "30px", marginRight: "30px" }}
             type="vertical"
           ></Divider>
-          <Form form={form} onFinish={handleSave}>
+          <Form
+            style={{ position: "relative" }}
+            form={form}
+            onFinish={handleSave}
+          >
             <Form.Item name={"lastName"} label={"姓"}>
               <Input defaultValue={lastName} />
             </Form.Item>
             <Form.Item name={"firstName"} label={"名"}>
               <Input defaultValue={firstName} />
             </Form.Item>
-            <Button htmlType="submit">保存</Button>
+            <Button
+              style={{ position: "absolute", right: "0px", marginTop: "13px" }}
+              htmlType="submit"
+            >
+              保存
+            </Button>
           </Form>
         </Space>
       </Modal>

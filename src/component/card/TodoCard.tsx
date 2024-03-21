@@ -1,6 +1,5 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Button, Card, Space, message } from "antd";
-import { motion } from "framer-motion";
 import { Task } from "../../type/task";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { setLogout } from "../../slice/authSlice";
@@ -54,85 +53,77 @@ const TodoCard = ({ task }: Props) => {
       });
   };
   return (
-    <motion.div
-      key={task.task_id}
-      animate={{ scale: 1.04 }}
-      exit={{ scale: 0 }}
-      initial={{ scale: 0.7 }}
-      whileHover={{ scale: 1.08 }}
+    <Card
+      style={{
+        backgroundColor: "#F1E2D4",
+        marginTop: 8,
+        position: "relative",
+        height: "10%",
+      }}
+      key={task.task_id.toString()}
     >
-      <Card
+      <Space
         style={{
-          backgroundColor: "#F1E2D4",
-          marginTop: 8,
-          position: "relative",
-          height: "10%",
+          display: "flex",
+          marginTop: "-10px",
+          alignItems: "center",
         }}
-        key={task.task_id.toString()}
       >
-        <Space
-          style={{
-            display: "flex",
-            marginTop: "-10px",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ fontSize: "1rem" }}>{`${task.task_id}.`}</div>
-          <div style={{ fontSize: "1rem", marginLeft: 10 }}>{task.title}</div>
-          <div
-            style={{
-              fontSize: "0.7rem",
-              backgroundColor: "#FFF6EE",
-              padding: "3px",
-              borderRadius: "5px",
-              // position: "absolute",
-              // top: "7px",
-              // right: "15%",
-            }}
-          >
-            {task.status}
-          </div>
-        </Space>
-
-        <div style={{ fontSize: "0.7rem" }}>{task.description}</div>
-        <Button
-          onClick={() => handleDelete(task.task_id)}
-          icon={<CloseOutlined />}
-          type="text"
-          size="small"
-          style={{
-            position: "absolute",
-            top: "0px",
-            right: "0px",
-          }}
-        ></Button>
-
+        <div style={{ fontSize: "1rem" }}>{`${task.task_id}.`}</div>
+        <div style={{ fontSize: "1rem", marginLeft: 10 }}>{task.title}</div>
         <div
           style={{
-            position: "absolute",
-            right: "0px",
-            bottom: "0px",
-            borderRadius: "10px",
-            padding: "5px",
-            marginRight: "-5px",
-            marginBottom: "-6px",
-            backgroundColor: "white",
+            fontSize: "0.7rem",
+            backgroundColor: "#FFF6EE",
+            padding: "3px",
+            borderRadius: "5px",
+            // position: "absolute",
+            // top: "7px",
+            // right: "15%",
           }}
         >
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundColor: "#ECD3BC",
-              padding: "10px",
-              borderRadius: "7px",
-            }}
-          >
-            {`作成日　${formattedDate}`}
-          </div>
+          {task.status}
         </div>
-      </Card>
-    </motion.div>
+      </Space>
+
+      <div style={{ fontSize: "0.7rem" }}>{task.description}</div>
+      <Button
+        onClick={() => handleDelete(task.task_id)}
+        icon={<CloseOutlined />}
+        type="text"
+        size="small"
+        style={{
+          position: "absolute",
+          top: "0px",
+          right: "0px",
+        }}
+      ></Button>
+
+      <div
+        style={{
+          position: "absolute",
+          right: "0px",
+          bottom: "0px",
+          borderRadius: "10px",
+          padding: "5px",
+          marginRight: "-5px",
+          marginBottom: "-6px",
+          backgroundColor: "white",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#ECD3BC",
+            padding: "10px",
+            borderRadius: "7px",
+          }}
+        >
+          {`作成日　${formattedDate}`}
+        </div>
+      </div>
+    </Card>
   );
 };
 

@@ -89,6 +89,7 @@ const LogoStyle = {
 };
 
 const ImgStyle: CSSProperties = {
+  objectFit: "contain",
   borderRadius: "30px",
   display: "flex",
   justifyContent: "center",

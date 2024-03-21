@@ -9,7 +9,7 @@ import {
   Tooltip,
   message,
 } from "antd";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import TodoCard from "../component/card/TodoCard";
 import { Task } from "../type/task";
@@ -94,7 +94,15 @@ const TodoManage = () => {
           </Space>
           <AnimatePresence>
             {dataSource.map((item) => (
-              <TodoCard task={item}></TodoCard>
+              <motion.div
+                key={item.task_id}
+                animate={{ scale: 1.04 }}
+                exit={{ scale: 0 }}
+                initial={{ scale: 0.7 }}
+                whileHover={{ scale: 1.08 }}
+              >
+                <TodoCard task={item}></TodoCard>
+              </motion.div>
             ))}
           </AnimatePresence>
         </>

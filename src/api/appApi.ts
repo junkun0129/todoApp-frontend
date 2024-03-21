@@ -43,7 +43,8 @@ export const baseQueryFile = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).persistedReducer.AuthReducer.token;
-
+    console.log(token);
+    console.log("object");
     if (token !== "") {
       headers.set("authorization", `Bearer ${token}`);
     }

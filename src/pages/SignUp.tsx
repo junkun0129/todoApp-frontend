@@ -1,4 +1,4 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Logo from "../component/svg/Logo";
@@ -25,6 +25,8 @@ const SignUp = () => {
         console.log(data);
         if (data.result === "success") {
           navigate("/signin");
+        } else {
+          message.error(data.message);
         }
       });
   };

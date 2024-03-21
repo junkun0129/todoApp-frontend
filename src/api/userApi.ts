@@ -25,18 +25,6 @@ export const userApi = createApi({
         },
       }),
     }),
-    updateProfImage: builder.mutation<any, any>({
-      query: (file) => {
-        const body = new FormData();
-        body.append("file", file);
-        console.log(file);
-        return {
-          url: `/user/updimg`,
-          method: "POST",
-          body,
-        };
-      },
-    }),
   }),
 });
 

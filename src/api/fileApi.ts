@@ -7,13 +7,13 @@ export const fileApi = createApi({
   endpoints: (builder) => ({
     updateProfImage: builder.mutation<any, any>({
       query: (file) => {
-        const body = new FormData();
-        body.append("file", file);
+        const formData = new FormData();
+        formData.append("file", file);
         console.log(file);
         return {
           url: `/user/updimg`,
           method: "POST",
-          body,
+          body: formData,
         };
       },
     }),
