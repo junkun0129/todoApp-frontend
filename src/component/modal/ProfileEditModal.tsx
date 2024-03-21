@@ -20,7 +20,6 @@ import {
   useUpdateProfileMutation,
 } from "../../api/userApi";
 import { setUser } from "../../slice/userSlice";
-import { useUpdateProfImageMutation } from "../../api/fileApi";
 import { useTestTaskPostMutation } from "../../api/taskApi";
 type Props = {
   ModalProps: ModalProps;
