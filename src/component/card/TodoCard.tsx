@@ -1,130 +1,141 @@
-import { CloseOutlined } from "@ant-design/icons";
-import { Button, Card, Space, message } from "antd";
+import { Button, Card, message, Image } from "antd";
 import { Task } from "../../type/task";
-import { useAppDispatch, useAppSelector } from "../../store/store";
-import { setLogout } from "../../slice/authSlice";
-import { useGetTaskListQuery } from "../../api/taskApi";
+import { useDeleteTaskMutation, useGetTaskListQuery } from "../../api/taskApi";
+import { DeleteTaskRequest, DeleteTaskResponse } from "../../type/api/task";
+import { motion } from "framer-motion";
+import { useAppDispatch } from "../../store/store";
+import { setGrouSelectedKey } from "../../slice/selectSlice";
 type Props = {
   task: Task;
 };
 const TodoCard = ({ task }: Props) => {
-  const date = new Date(task.created_at);
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Tokyo",
-  };
-
-  const formattedDate = date.toLocaleString("ja-JP", options as any);
-  const token = useAppSelector(
-    (state) => state.persistedReducer.AuthReducer.token
-  );
-  const TaskList = useGetTaskListQuery();
-
+  const [deleteTaskMutation] = useDeleteTaskMutation();
+  const { refetch } = useGetTaskListQuery();
   const dispatch = useAppDispatch();
-  const handleDelete = (id: number) => {
-    const options = {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+  const handleDeleteTask = () => {
+    const request: DeleteTaskRequest = {
+      body: {
+        id: task.task_id,
       },
-      body: JSON.stringify({ id }),
     };
-    fetch(`${import.meta.env.VITE_API_URL}/task/delete`, options)
-      .then((res: any) => {
-        if (res.status === 401) {
-          dispatch(setLogout());
+
+    deleteTaskMutation(request).then((res: any) => {
+      if (res.error) {
+      } else {
+        const response = res.data as DeleteTaskResponse;
+        if (response.result === "success") {
+          message.success(`"${task.title}"が削除されました`);
+          refetch();
         }
-        if (!res.ok) {
-        } else {
-          return res.json();
-        }
-      })
-      .then((data: any) => {
-        if (data.result === "success") {
-          TaskList.refetch();
-          message.success("タスクが削除されました");
-        }
-      });
+      }
+    });
   };
   return (
-    <Card
-      style={{
-        backgroundColor: "#F1E2D4",
-        marginTop: 8,
-        position: "relative",
-        height: "10%",
-      }}
+    <motion.div
       key={task.task_id.toString()}
+      animate={{ y: [10, 0] }}
+      exit={{ y: -50, opacity: 0, transition: { duration: 0.2 } }}
+      style={{ cursor: "pointer", marginTop: "10px" }}
+      whileHover={{ scale: 1.05 }}
+      onClick={() => dispatch(setGrouSelectedKey(task.task_id))}
+      whileTap={{ scale: 0.95 }}
     >
-      <Space
+      <Card
         style={{
-          display: "flex",
-          marginTop: "-10px",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ fontSize: "1rem" }}>{`${task.task_id}.`}</div>
-        <div style={{ fontSize: "1rem", marginLeft: 10 }}>{task.title}</div>
-        <div
-          style={{
-            fontSize: "0.7rem",
-            backgroundColor: "#FFF6EE",
-            padding: "3px",
-            borderRadius: "5px",
-            // position: "absolute",
-            // top: "7px",
-            // right: "15%",
-          }}
-        >
-          {task.status}
-        </div>
-      </Space>
-
-      <div style={{ fontSize: "0.7rem" }}>{task.description}</div>
-      <Button
-        onClick={() => handleDelete(task.task_id)}
-        icon={<CloseOutlined />}
-        type="text"
-        size="small"
-        style={{
-          position: "absolute",
-          top: "0px",
-          right: "0px",
-        }}
-      ></Button>
-
-      <div
-        style={{
-          position: "absolute",
-          right: "0px",
-          bottom: "0px",
-          borderRadius: "10px",
-          padding: "5px",
-          marginRight: "-5px",
-          marginBottom: "-6px",
-          backgroundColor: "white",
+          backgroundColor: "#EBE1D1",
+          position: "relative",
         }}
       >
         <div
           style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#ECD3BC",
-            padding: "10px",
-            borderRadius: "7px",
+            position: "absolute",
+            right: "-6px",
+            bottom: "-6px",
+            backgroundColor: "white",
+            padding: "5px",
+            borderRadius: "10px",
           }}
         >
-          {`作成日　${formattedDate}`}
+          <div
+            style={{
+              backgroundColor: "#E0C69F",
+              padding: "10px",
+              borderRadius: "7px",
+            }}
+          >
+            {" "}
+            作成日:{formatDateToJapanese(task.created_at)}
+          </div>
         </div>
-      </div>
-    </Card>
+
+        <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <div>
+            <div>タイトル:{task.title}</div>
+            <div>
+              ラベル:
+              <span
+                style={{
+                  backgroundColor: "#E3D4BF",
+                  borderRadius: "4px",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
+                  paddingTop: "3px",
+                  paddingBottom: "3px",
+                }}
+              >
+                {task.status}
+              </span>
+            </div>
+            <div>説明:{task.description}</div>
+          </div>
+          <div>
+            <div style={{ display: "flex", marginLeft: "130px" }}>
+              <div>作成者 : {task.user_name}</div>
+              <Image
+                preview={false}
+                style={{
+                  borderRadius: "20px",
+                  objectFit: "contain",
+                  marginLeft: "10px",
+                  marginTop: "-5px",
+                }}
+                src={`${import.meta.env.VITE_API_URL}/image/${
+                  task.user_img
+                }?tm=${
+                  new Date().getTime() + Math.floor(Math.random() * 1000000)
+                }`}
+                width={30}
+                height={30}
+              ></Image>
+            </div>
+          </div>
+          <Button
+            style={{ position: "absolute", right: "0px", top: "0px" }}
+            onClick={handleDeleteTask}
+            type="text"
+            size="small"
+          >
+            ✕
+          </Button>
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
 export default TodoCard;
+
+function formatDateToJapanese(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+
+  // 日本語表記にフォーマットする
+  const formattedDate = `${year}年${month}月${day}日 ${hours}時`;
+
+  return formattedDate;
+}

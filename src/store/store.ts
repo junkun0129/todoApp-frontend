@@ -5,6 +5,7 @@ import { persistReducer, persistStore } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import { AuthReducer } from "../slice/authSlice";
 import { userReducer } from "../slice/userSlice";
+import { selectReducer } from "../slice/selectSlice";
 import { taskApi } from "../api/taskApi";
 import { userApi } from "../api/userApi";
 import { fileApi } from "../api/fileApi";
@@ -24,6 +25,7 @@ const persistedReducer = persistReducer(persisConfig, reducer);
 export const store = configureStore({
   reducer: {
     persistedReducer,
+    selectReducer,
     [taskApi.reducerPath]: taskApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [fileApi.reducerPath]: fileApi.reducer,

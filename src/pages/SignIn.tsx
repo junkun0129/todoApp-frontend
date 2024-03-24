@@ -1,7 +1,7 @@
 import { Button, Checkbox, Form, Input, message } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { persistor, useAppDispatch } from "../store/store";
+import { persistor, useAppDispatch, useAppSelector } from "../store/store";
 import { setIsAuth, setToken } from "../slice/authSlice";
 import { motion } from "framer-motion";
 import Logo from "../component/svg/Logo";
@@ -12,6 +12,15 @@ const SignIn = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isStayLoggedIn, setisStayLoggedIn] = useState<boolean>(false);
+  const { token } = useAppSelector(
+    (state) => state.persistedReducer.AuthReducer
+  );
+  useEffect(() => {
+    if (token) {
+      dispatch(setIsAuth(true));
+    }
+  }, [token]);
+
   const handleSubmit = (values: Record<string, any>) => {
     console.log(values);
     console.log(isStayLoggedIn);
@@ -37,7 +46,6 @@ const SignIn = () => {
         if (data.result === "success") {
           console.log(data.user);
           console.log(data.data.user);
-          dispatch(setIsAuth(true));
           console.log(data.data.token);
           dispatch(setUser(data.data.user));
           dispatch(setToken(data.data.token));

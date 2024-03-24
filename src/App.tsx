@@ -2,9 +2,9 @@ import "./App.css";
 import "./tailwind.css";
 import SignUp from "./pages/SignUp";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import SignIn from "./pages/SignIn";
 import Home from "./pages/Home";
 import Applayout from "./layout/Applayout";
+import SignIn from "./pages/SignIn";
 
 function App() {
   return (

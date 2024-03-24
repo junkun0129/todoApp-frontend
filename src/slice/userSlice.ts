@@ -6,6 +6,7 @@ type initialState = {
 };
 const initialState: initialState = {
   user: {
+    user_id: null,
     email: "",
     firstName: "",
     lastName: "",

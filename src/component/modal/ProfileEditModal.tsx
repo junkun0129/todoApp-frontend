@@ -20,7 +20,10 @@ import {
   useUpdateProfileMutation,
 } from "../../api/userApi";
 import { setUser } from "../../slice/userSlice";
-import { useTestTaskPostMutation } from "../../api/taskApi";
+import {
+  useGetTaskListQuery,
+  useTestTaskPostMutation,
+} from "../../api/taskApi";
 type Props = {
   ModalProps: ModalProps;
   onClose: () => void;
@@ -29,6 +32,8 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
   const [updateProfileMutation, {}] = useUpdateProfileMutation();
   const [updateTest] = useTestTaskPostMutation();
   const dispatch = useAppDispatch();
+  const getTaskList = useGetTaskListQuery();
+
   const { email, lastName, firstName, img } = useAppSelector(
     (state) => state.persistedReducer.userReducer.user
   );
@@ -41,6 +46,7 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
       console.log(user.img + "?tm=" + Date.now());
       dispatch(
         setUser({
+          user_id: user.user_id,
           email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
@@ -78,6 +84,7 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
         }
       }
       getUser.refetch();
+      getTaskList.refetch();
       onClose();
     });
   };

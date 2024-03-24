@@ -12,7 +12,7 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
     if (!isAuth) {
       navigate("/signin");
     }
-  }, [isAuth, navigate]);
+  }, [isAuth]);
   return children;
 };
 
