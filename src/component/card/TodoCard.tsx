@@ -131,8 +131,6 @@ function formatDateToJapanese(dateString) {
   const month = date.getMonth() + 1;
   const day = date.getDate();
   const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
 
   // 日本語表記にフォーマットする
   const formattedDate = `${year}年${month}月${day}日 ${hours}時`;
