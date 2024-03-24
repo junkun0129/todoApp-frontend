@@ -243,7 +243,7 @@ const TodoManage = () => {
                     <>
                       <AnimatePresence>
                         {group.tasks.length !== 0 &&
-                          group.tasks.map((task, j) => {
+                          group.tasks.map((task) => {
                             return <TodoCard task={task} />;
                           })}
                       </AnimatePresence>
