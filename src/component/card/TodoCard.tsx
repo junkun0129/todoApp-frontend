@@ -38,7 +38,6 @@ const TodoCard = ({ task }: Props) => {
       style={{ cursor: "pointer", marginTop: "10px" }}
       whileHover={{ scale: 1.05 }}
       onClick={() => dispatch(setGrouSelectedKey(task.task_id))}
-      whileTap={{ scale: 0.95 }}
     >
       <Card
         style={{
