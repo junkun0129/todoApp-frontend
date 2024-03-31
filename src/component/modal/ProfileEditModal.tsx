@@ -43,14 +43,13 @@ const ProfileEditModal = ({ ModalProps, onClose }: Props) => {
     if (getUser.isSuccess) {
       const user = getUser.data.data;
       console.log(user, "koregauy");
-      console.log(user.img + "?tm=" + Date.now());
       dispatch(
         setUser({
           user_id: user.user_id,
           email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
-          img: user.img + "?tm=" + Date.now(),
+          img: user.img,
         })
       );
     }
