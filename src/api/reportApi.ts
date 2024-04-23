@@ -1,7 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery, baseQueryWithReauth } from "./appApi";
 import {} from "../type/api/task";
-import { CreateReportReq, CreateReportRes } from "../type/report";
+import {
+  CreateReportReq,
+  CreateReportRes,
+  GetReportRes,
+  GetReportsReq,
+} from "../type/report";
 
 export const reportApi = createApi({
   reducerPath: "reportApi",
@@ -17,10 +22,10 @@ export const reportApi = createApi({
         };
       },
     }),
-    getReports: builder.query<any, any>({
-      query: () => {
+    getReports: builder.query<GetReportRes, GetReportsReq>({
+      query: ({ date }) => {
         return {
-          url: "/report/list",
+          url: `/report/list?date=${date}`,
           method: "GET",
         };
       },
