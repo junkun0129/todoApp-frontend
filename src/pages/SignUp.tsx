@@ -2,33 +2,25 @@ import { Button, Form, Input, message } from "antd";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Logo from "../component/svg/Logo";
+import { useSignupMutation } from "../api/authApi";
+import { SignUpReq } from "../type/auth";
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [signupMutation] = useSignupMutation();
   const handleSubmit = (values: Record<string, any>) => {
     console.log(values);
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", // 送信するデータのタイプ
-      },
-      body: JSON.stringify(values), // 送信するデータをJSON形式に変換
-    };
-    fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, options)
-      .then((res: any) => {
-        if (!res.ok) {
+    try {
+      const request: SignUpReq = {
+        body: values as any,
+      };
+      signupMutation(request).then((res: any) => {
+        if (res.error) {
         } else {
-          return res.json();
-        }
-      })
-      .then((data: any) => {
-        console.log(data);
-        if (data.result === "success") {
-          navigate("/signin");
-        } else {
-          message.error(data.message);
+          console.log(res);
         }
       });
+    } catch (err) {}
   };
   return (
     <div
@@ -82,10 +74,11 @@ const SignUp = () => {
       >
         <h1 style={{ marginBottom: "50px" }}>新規アカウント登録</h1>
         <Form onFinish={handleSubmit}>
-          <Form.Item rules={[{ required: true }]} label="姓" name="lastName">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item rules={[{ required: true }]} label="名" name="firstName">
+          <Form.Item
+            rules={[{ required: true }]}
+            label="ユーザーネーム"
+            name="user_name"
+          >
             <Input></Input>
           </Form.Item>
           <Form.Item

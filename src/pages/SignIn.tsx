@@ -6,12 +6,15 @@ import { setIsAuth, setToken } from "../slice/authSlice";
 import { motion } from "framer-motion";
 import Logo from "../component/svg/Logo";
 import { setUser } from "../slice/userSlice";
+import { useSigninMutation } from "../api/authApi";
+import { SignInReq } from "../type/auth";
 
 const SignIn = () => {
   persistor.purge();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isStayLoggedIn, setisStayLoggedIn] = useState<boolean>(false);
+  const [signinMutation] = useSigninMutation();
   const { token } = useAppSelector(
     (state) => state.persistedReducer.AuthReducer
   );
@@ -22,38 +25,22 @@ const SignIn = () => {
   }, [token]);
 
   const handleSubmit = (values: Record<string, any>) => {
-    console.log(values);
-    console.log(isStayLoggedIn);
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", // 送信するデータのタイプ
-      },
-      body: JSON.stringify({
+    const request: SignInReq = {
+      body: {
         email: values.email,
         password: values.password,
         is_stay_login: isStayLoggedIn,
-      }), // 送信するデータをJSON形式に変換
+      },
     };
-    fetch(`${import.meta.env.VITE_API_URL}/auth/signin`, options)
-      .then((res: any) => {
-        if (!res.ok) {
-        } else {
-          return res.json();
-        }
-      })
-      .then((data: any) => {
-        if (data.result === "success") {
-          console.log(data.user);
-          console.log(data.data.user);
-          console.log(data.data.token);
-          dispatch(setUser(data.data.user));
-          dispatch(setToken(data.data.token));
-          navigate("/");
-        } else {
-          message.error(data.message);
-        }
-      });
+    signinMutation(request).then((res: any) => {
+      if (res.error) {
+      } else {
+        const response = res.data;
+        dispatch(setUser(response.data.user));
+        dispatch(setToken(response.data.token));
+        navigate("/");
+      }
+    });
   };
   return (
     <div

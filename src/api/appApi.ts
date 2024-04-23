@@ -9,7 +9,7 @@ export const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).persistedReducer.AuthReducer.token;
-
+    
     if (token !== "") {
       headers.set("authorization", `Bearer ${token}`);
     }

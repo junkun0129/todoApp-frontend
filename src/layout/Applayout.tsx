@@ -1,17 +1,28 @@
 import { Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
-import AppHeader from "../component/header/AppHeader";
+import AppHeader from "./AppHeader";
+import AppSideBar from "./AppSideBar";
+import { useAppSelector } from "../store/store";
+import { appStyle } from "../constants/style.const";
 
-const Applayout = () => {
+const AppLayout = () => {
+  const { screenSize } = useAppSelector(
+    (state) => state.persistedReducer.AppReducer
+  );
   return (
-    <Layout style={{ overflow: "hidden", width: "100vw", height: "100vh" }}>
-      <AppHeader></AppHeader>
-      <Content>
-        <Outlet></Outlet>
-      </Content>
+    <Layout className="w-[100vw] h-[100vh] flex">
+      <AppSideBar />
+      <div className="w-full h-full">
+        <AppHeader />
+        <Content
+          className={`w-full h-[${screenSize.y - appStyle.headerHeight}]`}
+        >
+          <Outlet />
+        </Content>
+      </div>
     </Layout>
   );
 };
 
-export default Applayout;
+export default AppLayout;
