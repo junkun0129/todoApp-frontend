@@ -20,4 +20,7 @@ export const appRoute = {
   userEdit: "/user/edit",
   userContact: "/user/contact",
   userList: "/user/list",
+
+  //task
+  taskManage: "/task/manage",
 };

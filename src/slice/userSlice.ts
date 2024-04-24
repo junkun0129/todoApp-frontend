@@ -8,8 +8,7 @@ const initialState: initialState = {
   user: {
     user_id: null,
     email: "",
-    firstName: "",
-    lastName: "",
+    user_name: "",
     img: "",
   },
 };

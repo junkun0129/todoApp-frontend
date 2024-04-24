@@ -11,6 +11,8 @@ import { useAppDispatch } from "./store/store";
 import { useEffect } from "react";
 import { setScreenSize } from "./slice/appSlice";
 import ReportManagePage from "./pages/ReportManagePage";
+import TaskManagePage from "./pages/TaskManagePage";
+import EditProfilePage from "./pages/EditProfilePage";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -45,6 +47,18 @@ function App() {
             <Route
               path={appRoute.reportList}
               element={<ReportManagePage />}
+            ></Route>
+            <Route
+              path={appRoute.reportList}
+              element={<ReportManagePage />}
+            ></Route>
+            <Route
+              path={appRoute.userEdit}
+              element={<EditProfilePage />}
+            ></Route>
+            <Route
+              path={appRoute.taskManage}
+              element={<TaskManagePage />}
             ></Route>
           </Route>
         </Routes>

@@ -54,6 +54,15 @@ const AppSideBar = () => {
       key: appRoute.userContact,
       label: "連絡管理",
     },
+    {
+      key: "grp-2",
+      type: "group",
+      label: "ユーザー",
+    },
+    {
+      key: appRoute.taskManage,
+      label: "タスク管理",
+    },
   ];
   const [selectedKeys, setselectedKeys] = useState<string[]>([]);
   const location = useLocation();

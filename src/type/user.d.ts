@@ -1,7 +1,6 @@
 export type User = {
   user_id: number | null;
   email: string;
-  firstName: string;
-  lastName: string;
+  user_name: string;
   img: string;
 };
