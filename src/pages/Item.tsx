@@ -2,11 +2,11 @@ import { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React, { ReactNode } from "react";
+import { DNDItem } from "./TaskManagePage";
 type Props = {
-  id: UniqueIdentifier;
-  title: string;
+  item:DNDItem
 };
-const Item = ({ id, title }: Props) => {
+const Item = ({ item }: Props) => {
   const {
     attributes,
     setNodeRef,
@@ -15,7 +15,7 @@ const Item = ({ id, title }: Props) => {
     transition,
     isDragging,
   } = useSortable({
-    id: id,
+    id: item.task_id,
     data: {
       type: "item",
     },
@@ -29,7 +29,7 @@ const Item = ({ id, title }: Props) => {
         transform: CSS.Translate.toString(transform),
       }}
     >
-      <div>{title}</div>
+      <div>{item.title}</div>
       <button {...listeners}>drag me</button>
     </div>
   );

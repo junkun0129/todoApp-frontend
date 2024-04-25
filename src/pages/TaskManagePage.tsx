@@ -18,7 +18,10 @@ import React, { useState } from "react";
 import Container from "./Container";
 import Items from "./Item";
 import Item from "./Item";
-import { Button } from "antd";
+import { Button, Form, Input, Modal, message } from "antd";
+import TextArea from "antd/es/input/TextArea";
+import { useCreateTaskMutation } from "../api/taskApi";
+import { CreateTaskReq, CreateTaskRes } from "../type/task";
 export type DNDItem = {
   task_id: UniqueIdentifier;
   title: string;
@@ -58,7 +61,8 @@ const TaskManagePage = () => {
     useState<UniqueIdentifier>();
   const [containerName, setContainerName] = useState("");
   const [itemName, setItemName] = useState("");
-
+  const [createModalOpen, setcreateModalOpen] = useState<boolean>(false);
+  const [createTaskMutation] = useCreateTaskMutation();
   //DND Handlers
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -74,10 +78,22 @@ const TaskManagePage = () => {
     if (!active && !over) return;
   };
   const handleDragEnd = () => {};
+  const handleCreate = (values) => {
+    const request: CreateTaskReq = {
+      body: values,
+    };
 
+    createTaskMutation(request).then((res: any) => {
+      if (res.error) {
+      } else {
+        const response = res.data as CreateTaskRes;
+        message.success(response.result);
+      }
+    });
+  };
   return (
     <div className="flex justify-around items-center w-full h-full ">
-      <Button>タスク作成</Button>
+      <Button onClick={() => setcreateModalOpen(true)}>タスク作成</Button>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -104,6 +120,17 @@ const TaskManagePage = () => {
           );
         })}
       </DndContext>
+      <Modal open={createModalOpen} onCancel={() => setcreateModalOpen(false)}>
+        <Form onFinish={handleCreate}>
+          <Form.Item label={"title"} name={"title"}>
+            <Input />
+          </Form.Item>
+          <Form.Item label={"body"} name={"body"}>
+            <TextArea />
+          </Form.Item>
+          <Button htmlType="submit">create</Button>
+        </Form>
+      </Modal>
     </div>
   );
 };

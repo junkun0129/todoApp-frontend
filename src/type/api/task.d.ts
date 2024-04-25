@@ -1,3 +1,4 @@
+import { VoidResponse } from "../common";
 import { Result } from "../response";
 import { TaskGroup } from "../task";
 export type GetTaskListResponse = {
@@ -25,25 +26,13 @@ export type CreateTaskRequest = {
 export type CreateTaskResponse = {
   result: Result;
 };
-export type DeleteTaskRequest = {
+export type DeleteTaskReq = {
   body: {
     id: number;
   };
 };
 
-export type DeleteTaskResponse = {
-  result: Result;
-};
-
-export type DeleteTaskGroupRequest = {
-  body: {
-    id: number;
-  };
-};
-export type DeleteTaskGroupResponse = {
-  result: Result;
-  message?: string;
-};
+export type DeleteTaskRes = VoidResponse;
 
 export type UpdateTaskRequest = {
   body: {

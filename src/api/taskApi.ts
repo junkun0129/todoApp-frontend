@@ -1,102 +1,62 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery, baseQueryWithReauth } from "./appApi";
 import {
-  CreateTaskGroupRequest,
-  CreateTaskGroupResponse,
-  CreateTaskRequest,
-  CreateTaskResponse,
-  DeleteTaskGroupRequest,
-  DeleteTaskGroupResponse,
-  DeleteTaskRequest,
-  DeleteTaskResponse,
-  GetTaskListResponse,
-  UpdateTaskRequest,
-  UpdateTaskResponse,
-} from "../type/api/task";
+  CreateTaskReq,
+  CreateTaskRes,
+  DeleteTaskReq,
+  DeleteTaskRes,
+  GetTaskDetailReq,
+  GetTaskDetailRes,
+  GetTaskListRes,
+  UpdateTaskReq,
+  UpdateTaskRes,
+} from "../type/task";
 
 export const taskApi = createApi({
   reducerPath: "taskApi",
   baseQuery: baseQueryWithReauth(baseQuery),
   endpoints: (builder) => ({
-    getTaskList: builder.query<GetTaskListResponse, void>({
+    getTaskList: builder.query<GetTaskListRes, void>({
       query: () => ({
-        url: "/task/grouplist",
+        url: "/task/list",
         method: "GET",
       }),
     }),
-    getTaskDetail: builder.mutation<any, number>({
-      query: (id) => ({
-        url: "/task/getdetail",
-        method: "POST",
-        body: {
-          id,
-        },
+    getTaskDetail: builder.mutation<GetTaskDetailRes, GetTaskDetailReq>({
+      query: ({ body }) => ({
+        url: "/task/detail",
+        method: "GET",
+        body,
       }),
     }),
-    createTaskGroup: builder.mutation<
-      CreateTaskGroupResponse,
-      CreateTaskGroupRequest
-    >({
+    updateTask: builder.mutation<UpdateTaskRes, UpdateTaskReq>({
       query: ({ body }) => ({
-        url: "/task/createtaskgroup",
+        url: "/task/update",
         method: "POST",
         body,
       }),
     }),
-    createTask: builder.mutation<CreateTaskResponse, CreateTaskRequest>({
+    createTask: builder.mutation<CreateTaskRes, CreateTaskReq>({
       query: ({ body }) => ({
-        url: "/task/createtask",
+        url: "/task/create",
         method: "POST",
         body,
       }),
     }),
-    updateTask: builder.mutation<UpdateTaskResponse, UpdateTaskRequest>({
+    deleteTask: builder.mutation<DeleteTaskRes, DeleteTaskReq>({
       query: ({ body }) => ({
-        url: "/task/updatetask",
+        url: "/task/create",
         method: "POST",
         body,
       }),
-    }),
-    deleteTask: builder.mutation<DeleteTaskResponse, DeleteTaskRequest>({
-      query: ({ body }) => ({
-        url: "/task/delete",
-        method: "POST",
-        body,
-      }),
-    }),
-    deleteTaskGroup: builder.mutation<
-      DeleteTaskGroupResponse,
-      DeleteTaskGroupRequest
-    >({
-      query: ({ body }) => ({
-        url: "/task/deletegroup",
-        method: "POST",
-        body,
-      }),
-    }),
-    testTaskPost: builder.mutation({
-      query: (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        console.log(file);
-
-        return {
-          url: "/task/test",
-          method: "POST",
-          body: formData,
-        };
-      },
     }),
   }),
 });
 
 export const {
   useGetTaskListQuery,
-  useTestTaskPostMutation,
-  useCreateTaskGroupMutation,
-  useCreateTaskMutation,
-  useDeleteTaskMutation,
-  useDeleteTaskGroupMutation,
-  useUpdateTaskMutation,
   useGetTaskDetailMutation,
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
 } = taskApi;

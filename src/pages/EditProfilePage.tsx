@@ -10,7 +10,7 @@ const EditProfilePage = () => {
     <div>
       <div>profile image</div>
       <Image height={100} width={100} src={user?.img} />
-
+        
       <div>username {user?.user_name}</div>
     </div>
   );
