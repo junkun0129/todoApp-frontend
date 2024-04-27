@@ -8,30 +8,35 @@ import {
   closestCorners,
   DragStartEvent,
   DragMoveEvent,
+  DragEndEvent,
+  DragOverEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
+  arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { Reorder } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "./Container";
 import Items from "./Item";
 import Item from "./Item";
 import { Button, Form, Input, Modal, message } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { useCreateTaskMutation } from "../api/taskApi";
-import { CreateTaskReq, CreateTaskRes } from "../type/task";
+import { useCreateTaskMutation, useGetTaskListQuery } from "../api/taskApi";
+import { CreateTaskReq, CreateTaskRes, TaskStatus } from "../type/task";
+import TaskPanel from "../component/panel/TaskPanel";
 export type DNDItem = {
   task_id: UniqueIdentifier;
   title: string;
-  status: string;
+  status: TaskStatus;
   user_name: string;
   img: string;
   created_at: string;
 };
 
-type DNDType = {
+export type DNDType = {
+  id: UniqueIdentifier;
   title: string;
   status_type: string;
   items: DNDItem[];
@@ -39,16 +44,19 @@ type DNDType = {
 
 const dataContainer: DNDType[] = [
   {
+    id: "container-1",
     title: "NEW",
     status_type: "NEW",
     items: [],
   },
   {
+    id: "container-2",
     title: "PROCESS",
     status_type: "PROCCESS",
     items: [],
   },
   {
+    id: "container-3",
     title: "DONE",
     status_type: "DONE",
     items: [],
@@ -62,8 +70,56 @@ const TaskManagePage = () => {
   const [containerName, setContainerName] = useState("");
   const [itemName, setItemName] = useState("");
   const [createModalOpen, setcreateModalOpen] = useState<boolean>(false);
+  const { data, isSuccess } = useGetTaskListQuery();
   const [createTaskMutation] = useCreateTaskMutation();
+  useEffect(() => {
+    if (!isSuccess) return;
+    setContainers([]);
+
+    data.data.map((item, i) => {
+      if (!containers.length) return;
+      const index = containers.findIndex(
+        (obj, i) => obj.status_type === item.status
+      );
+
+      const newItem: DNDItem = {
+        task_id: item.task_id as UniqueIdentifier,
+        title: item.title,
+        status: item.status,
+        user_name: item.user_name,
+        img: item.img,
+        created_at: item.created_at,
+      };
+      const newContainers = containers.map((container, i) => {
+        if (index === i) {
+          container.items.push(newItem);
+        }
+        return container;
+      });
+      setContainers(newContainers);
+      // const newContainers: DNDType[] = containers[index].items.push(newItem);
+      // setContainers(newContainers);
+    });
+    return () => {
+      setContainers([]);
+    };
+  }, [data]);
+
+  useEffect(() => {
+    console.log(containers);
+  }, [containers]);
   //DND Handlers
+  const findValueOfItems = (id: UniqueIdentifier | undefined, type: string) => {
+    if (type === "container") {
+      return containers.find((container) => container.id === id);
+    }
+    if (type === "items") {
+      return containers.find((container, i) =>
+        container.items.find((item) => item.task_id === id)
+      );
+    }
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -74,10 +130,15 @@ const TaskManagePage = () => {
     setActiveId(e.active.id);
   };
   const handleDragMove = (e: DragMoveEvent) => {
-    const { active, over } = e;
-    if (!active && !over) return;
+    // const { active, over } = e;
+    // console.log(e);
   };
-  const handleDragEnd = () => {};
+  const handleDragOver = (e: DragOverEvent) => {
+    console.log(e, "dragover");
+  };
+  const handleDragEnd = (e: DragEndEvent) => {
+    console.log("dragend :>> ", e);
+  };
   const handleCreate = (values) => {
     const request: CreateTaskReq = {
       body: values,
@@ -92,34 +153,25 @@ const TaskManagePage = () => {
     });
   };
   return (
-    <div className="flex justify-around items-center w-full h-full ">
+    <div className=" w-full h-full ">
       <Button onClick={() => setcreateModalOpen(true)}>タスク作成</Button>
-      <DndContext
+      {/* <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
       >
-        {containers.map((container, i) => {
-          return (
-            <Container
-              key={i}
-              title={container.title}
-              id={i}
-              onAddItem={() => {}}
-            >
-              <SortableContext
-                items={container.items.map((item) => item.task_id)}
-              >
-                {container.items.map((item) => {
-                  return <Item key={item.task_id} item={item}></Item>;
-                })}
-              </SortableContext>
-            </Container>
-          );
-        })}
-      </DndContext>
+        <div className=" w-full h-full flex justify-around items-center">
+          {containers.map((container, i) => {
+            return (
+              <Container key={container.id} container={container}></Container>
+            );
+          })}
+        </div>
+      </DndContext> */}
+      <TaskPanel dataSource={containers}></TaskPanel>
       <Modal open={createModalOpen} onCancel={() => setcreateModalOpen(false)}>
         <Form onFinish={handleCreate}>
           <Form.Item label={"title"} name={"title"}>

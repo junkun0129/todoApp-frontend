@@ -1,11 +1,12 @@
 import { Result, VoidResponse } from "./common";
-
+export type TaskStatus = "NEW" | "PROCESS" | "DONE";
 export type TaskList = {
   task_id: string;
   title: string;
   created_at: string;
   user_name: string;
   img: string;
+  status: TaskStatus;
 };
 export type TaskDetail = {
   task_id: string;
