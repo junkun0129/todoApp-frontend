@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 // DnD
@@ -23,6 +23,11 @@ import {
 import Container from "./Container";
 import Items from "./Item";
 import { DNDType } from "../../pages/TaskManagePage";
+import {
+  ChangeStatusAndOrderBody,
+  ChangeStatusAndOrderReq,
+} from "../../type/task";
+import { useChangeStatusAndOrderMutation } from "../../api/taskApi";
 
 // Components
 
@@ -35,13 +40,20 @@ export default function TaskPanel({ dataSource }) {
   const [currentContainerId, setCurrentContainerId] =
     useState<UniqueIdentifier>();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [updateStatAndOrderMutation] = useChangeStatusAndOrderMutation();
 
   // Find the value of the items
   function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
+    console.log("object");
     if (type === "container") {
       return containers.find((item) => item.id === id);
     }
     if (type === "item") {
+      console.log(
+        containers.find((container) =>
+          container.items.find((item) => item.task_id === id)
+        )
+      );
       return containers.find((container) =>
         container.items.find((item) => item.task_id === id)
       );
@@ -67,6 +79,15 @@ export default function TaskPanel({ dataSource }) {
     if (!container) return [];
     return container.items;
   };
+  const findItem = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, "item");
+    console.log(container);
+    if (!container) return null;
+    const item = container.items.find((item) => item.task_id === id);
+    console.log(item);
+    if (!item) return null;
+    return item;
+  };
 
   // DND Handlers
   const sensors = useSensors(
@@ -82,25 +103,27 @@ export default function TaskPanel({ dataSource }) {
     setActiveId(id);
   }
 
+  useEffect(() => {
+    console.log("object");
+  }, [containers]);
+  // DND Handlers
   const handleDragMove = (event: DragMoveEvent) => {
     const { active, over } = event;
-    console.log(event);
     // Handle Items Sorting
     if (
-      active.id.toString().includes("item") &&
-      over?.id.toString().includes("item") &&
       active &&
       over &&
+      !active.id.toString().includes("container") &&
+      !over?.id.toString().includes("container") &&
       active.id !== over.id
     ) {
-      // Find the active container and over container
+      console.log("object");
       const activeContainer = findValueOfItems(active.id, "item");
       const overContainer = findValueOfItems(over.id, "item");
 
       // If the active or over container is not found, return
       if (!activeContainer || !overContainer) return;
 
-      // Find the index of the active and over container
       const activeContainerIndex = containers.findIndex(
         (container) => container.id === activeContainer.id
       );
@@ -108,34 +131,35 @@ export default function TaskPanel({ dataSource }) {
         (container) => container.id === overContainer.id
       );
 
-      // Find the index of the active and over item
-      const activeitemIndex = activeContainer.items.findIndex(
+      const activeItemIndex = activeContainer.items.findIndex(
         (item) => item.task_id === active.id
       );
-      const overitemIndex = overContainer.items.findIndex(
+      const overItemIndex = overContainer.items.findIndex(
         (item) => item.task_id === over.id
       );
+
       // In the same container
       if (activeContainerIndex === overContainerIndex) {
-        let newItems = [...containers];
+        const newItems = [...containers];
         newItems[activeContainerIndex].items = arrayMove(
           newItems[activeContainerIndex].items,
-          activeitemIndex,
-          overitemIndex
+          activeItemIndex,
+          overItemIndex
         );
 
         setContainers(newItems);
       } else {
         // In different containers
-        let newItems = [...containers];
-        const [removeditem] = newItems[activeContainerIndex].items.splice(
-          activeitemIndex,
+        console.log("object");
+        const newItems = [...containers];
+        const [removedItem] = newItems[activeContainerIndex].items.splice(
+          activeItemIndex,
           1
         );
         newItems[overContainerIndex].items.splice(
-          overitemIndex,
+          overItemIndex,
           0,
-          removeditem
+          removedItem
         );
         setContainers(newItems);
       }
@@ -143,157 +167,159 @@ export default function TaskPanel({ dataSource }) {
 
     // Handling Item Drop Into a Container
     if (
-      active.id.toString().includes("item") &&
-      over?.id.toString().includes("container") &&
       active &&
       over &&
+      !active.id.toString().includes("container") &&
+      over?.id.toString().includes("container") &&
       active.id !== over.id
     ) {
-      // Find the active and over container
       const activeContainer = findValueOfItems(active.id, "item");
       const overContainer = findValueOfItems(over.id, "container");
-
       // If the active or over container is not found, return
       if (!activeContainer || !overContainer) return;
 
-      // Find the index of the active and over container
       const activeContainerIndex = containers.findIndex(
         (container) => container.id === activeContainer.id
       );
-      const overContainerIndex = containers.findIndex(
-        (container) => container.id === overContainer.id
-      );
-
-      // Find the index of the active and over item
-      const activeitemIndex = activeContainer.items.findIndex(
+      const activeItemIndex = activeContainer.items.findIndex(
         (item) => item.task_id === active.id
       );
 
-      // Remove the active item from the active container and add it to the over container
       let newItems = [...containers];
-      const [removeditem] = newItems[activeContainerIndex].items.splice(
-        activeitemIndex,
+      const [removedItem] = newItems[activeContainerIndex].items.splice(
+        activeItemIndex,
         1
       );
-      newItems[overContainerIndex].items.push(removeditem);
+      overContainer.items.push(removedItem); // Always add the item to the over container
       setContainers(newItems);
     }
   };
 
-  // This is the function that handles the sorting of the containers and items when the user is done dragging.
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    // Handling Container Sorting
-    if (
-      active.id.toString().includes("container") &&
-      over?.id.toString().includes("container") &&
-      active &&
-      over &&
-      active.id !== over.id
-    ) {
-      // Find the index of the active and over container
-      const activeContainerIndex = containers.findIndex(
-        (container) => container.id === active.id
-      );
-      const overContainerIndex = containers.findIndex(
-        (container) => container.id === over.id
-      );
-      // Swap the active and over container
-      let newItems = [...containers];
-      newItems = arrayMove(newItems, activeContainerIndex, overContainerIndex);
-      setContainers(newItems);
+  function getNextOrder(event: DragEndEvent) {
+    const items: string[] = event.active.data.current.sortable.items;
+    console.log(items);
+    console.log(event);
+    const active = event.active;
+    if (!items.length) {
+      return 1;
+    } else {
+      const activeIndex = items.findIndex((item) => item === activeId);
+      const oneBeforeItem = findItem(items[activeIndex - 1]);
+      const container = findValueOfItems(activeId, "item");
+      console.log(oneBeforeItem);
+      const body: ChangeStatusAndOrderBody = {
+        order: oneBeforeItem.task_order + 1,
+        task_id: active.id as string,
+        status: container.title,
+      };
+      console.log(body);
+      return body;
     }
-
+  }
+  // This is the function that handles the sorting of the containers and items when the user is done dragging.
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    console.log(event);
     // Handling item Sorting
+    const body = getNextOrder(event);
+    const request: ChangeStatusAndOrderReq = {
+      body: body as ChangeStatusAndOrderBody,
+    };
+    updateStatAndOrderMutation(request).then((res: any) => {
+      console.log(res);
+    });
     if (
-      active.id.toString().includes("item") &&
-      over?.id.toString().includes("item") &&
       active &&
       over &&
+      !active.id.toString().includes("container") &&
+      !over?.id.toString().includes("container") &&
       active.id !== over.id
     ) {
-      // Find the active and over container
       const activeContainer = findValueOfItems(active.id, "item");
       const overContainer = findValueOfItems(over.id, "item");
-
       // If the active or over container is not found, return
+      console.log(activeContainer, OverconstrainedError);
       if (!activeContainer || !overContainer) return;
-      // Find the index of the active and over container
       const activeContainerIndex = containers.findIndex(
         (container) => container.id === activeContainer.id
       );
       const overContainerIndex = containers.findIndex(
         (container) => container.id === overContainer.id
       );
-      // Find the index of the active and over item
-      const activeitemIndex = activeContainer.items.findIndex(
+      const activeItemIndex = activeContainer.items.findIndex(
         (item) => item.task_id === active.id
       );
-      const overitemIndex = overContainer.items.findIndex(
+      const overItemIndex = overContainer.items.findIndex(
         (item) => item.task_id === over.id
       );
-
       // In the same container
       if (activeContainerIndex === overContainerIndex) {
-        let newItems = [...containers];
+        const newItems = [...containers];
         newItems[activeContainerIndex].items = arrayMove(
           newItems[activeContainerIndex].items,
-          activeitemIndex,
-          overitemIndex
+          activeItemIndex,
+          overItemIndex
         );
         setContainers(newItems);
       } else {
         // In different containers
-        let newItems = [...containers];
-        const [removeditem] = newItems[activeContainerIndex].items.splice(
-          activeitemIndex,
+        const newItems = [...containers];
+        const [removedItem] = newItems[activeContainerIndex].items.splice(
+          activeItemIndex,
           1
         );
         newItems[overContainerIndex].items.splice(
-          overitemIndex,
+          overItemIndex,
           0,
-          removeditem
+          removedItem
         );
         setContainers(newItems);
       }
+      // const body: ChangeStatusAndOrderBody = {
+      //   task_id: active.id as string,
+      // };
     }
     // Handling item dropping into Container
     if (
-      active.id.toString().includes("item") &&
-      over?.id.toString().includes("container") &&
       active &&
       over &&
+      !active.id.toString().includes("container") &&
+      over?.id.toString().includes("container") &&
       active.id !== over.id
     ) {
-      // Find the active and over container
+      console.log("object");
       const activeContainer = findValueOfItems(active.id, "item");
       const overContainer = findValueOfItems(over.id, "container");
-
       // If the active or over container is not found, return
       if (!activeContainer || !overContainer) return;
-      // Find the index of the active and over container
       const activeContainerIndex = containers.findIndex(
         (container) => container.id === activeContainer.id
       );
-      const overContainerIndex = containers.findIndex(
-        (container) => container.id === overContainer.id
-      );
-      // Find the index of the active and over item
-      const activeitemIndex = activeContainer.items.findIndex(
+      const activeItemIndex = activeContainer.items.findIndex(
         (item) => item.task_id === active.id
       );
-
       let newItems = [...containers];
-      const [removeditem] = newItems[activeContainerIndex].items.splice(
-        activeitemIndex,
+      const [removedItem] = newItems[activeContainerIndex].items.splice(
+        activeItemIndex,
         1
       );
-      newItems[overContainerIndex].items.push(removeditem);
+      overContainer.items.push(removedItem); // Always add the item to the over container
       setContainers(newItems);
     }
+    console.log("object");
     setActiveId(null);
-  }
+  };
+
+  const updateStatusAndOrder = async (body: ChangeStatusAndOrderBody) => {
+    const request: ChangeStatusAndOrderReq = {
+      body,
+    };
+
+    const res = await updateStatAndOrderMutation(request);
+    console.log(res);
+  };
+
+  // Container Component の追加も検討
 
   return (
     <div className="mx-auto max-w-7xl py-10">
@@ -306,9 +332,9 @@ export default function TaskPanel({ dataSource }) {
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
-            // onDragStart={handleDragStart}
-            // onDragMove={handleDragMove}
-            // onDragEnd={handleDragEnd}
+            onDragStart={handleDragStart}
+            onDragMove={handleDragMove}
+            onDragEnd={handleDragEnd}
           >
             <SortableContext items={containers.map((i) => i.id)}>
               {containers.map((container) => (
@@ -324,7 +350,7 @@ export default function TaskPanel({ dataSource }) {
                   <SortableContext
                     items={container.items.map((i) => i.task_id)}
                   >
-                    <div className="flex items-start flex-col gap-y-4">
+                    <div className=" flex items-start flex-col gap-y-4 h-[300px] overflow-auto">
                       {container.items.map((i) => (
                         <Items title={i.title} id={i.task_id} key={i.task_id} />
                       ))}
@@ -333,6 +359,20 @@ export default function TaskPanel({ dataSource }) {
                 </Container>
               ))}
             </SortableContext>
+            <DragOverlay adjustScale={false}>
+              {/* Drag Overlay For item Item */}
+              {activeId && !activeId.toString().includes("container") && (
+                <Items id={activeId} title={findItemTitle(activeId)} />
+              )}
+              {/* Drag Overlay For Container */}
+              {activeId && activeId.toString().includes("container") && (
+                <Container id={activeId} title={findContainerTitle(activeId)}>
+                  {findContainerItems(activeId).map((i) => (
+                    <Items key={i.task_id} title={i.title} id={i.task_id} />
+                  ))}
+                </Container>
+              )}
+            </DragOverlay>
           </DndContext>
         </div>
       </div>

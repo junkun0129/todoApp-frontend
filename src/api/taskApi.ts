@@ -1,6 +1,8 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery, baseQueryWithReauth } from "./appApi";
 import {
+  ChangeStatusAndOrderReq,
+  ChangeStatusAndOrderRes,
   CreateTaskReq,
   CreateTaskRes,
   DeleteTaskReq,
@@ -45,7 +47,17 @@ export const taskApi = createApi({
     }),
     deleteTask: builder.mutation<DeleteTaskRes, DeleteTaskReq>({
       query: ({ body }) => ({
-        url: "/task/create",
+        url: "/task/delete",
+        method: "POST",
+        body,
+      }),
+    }),
+    changeStatusAndOrder: builder.mutation<
+      ChangeStatusAndOrderRes,
+      ChangeStatusAndOrderReq
+    >({
+      query: ({ body }) => ({
+        url: "/task/orderstatusupdate",
         method: "POST",
         body,
       }),
@@ -59,4 +71,5 @@ export const {
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
+  useChangeStatusAndOrderMutation,
 } = taskApi;

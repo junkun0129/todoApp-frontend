@@ -14,6 +14,7 @@ import {
 import {
   SortableContext,
   arrayMove,
+  defaultNewIndexGetter,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { Reorder } from "framer-motion";
@@ -33,6 +34,7 @@ export type DNDItem = {
   user_name: string;
   img: string;
   created_at: string;
+  task_order: number;
 };
 
 export type DNDType = {
@@ -52,7 +54,7 @@ const dataContainer: DNDType[] = [
   {
     id: "container-2",
     title: "PROCESS",
-    status_type: "PROCCESS",
+    status_type: "PROCESS",
     items: [],
   },
   {
@@ -78,10 +80,12 @@ const TaskManagePage = () => {
 
     data.data.map((item, i) => {
       if (!containers.length) return;
+
       const index = containers.findIndex(
         (obj, i) => obj.status_type === item.status
       );
-
+      console.log(item, defaultNewIndexGetter);
+      console.log(index);
       const newItem: DNDItem = {
         task_id: item.task_id as UniqueIdentifier,
         title: item.title,
@@ -89,6 +93,7 @@ const TaskManagePage = () => {
         user_name: item.user_name,
         img: item.img,
         created_at: item.created_at,
+        task_order: item.task_order,
       };
       const newContainers = containers.map((container, i) => {
         if (index === i) {

@@ -7,6 +7,7 @@ export type TaskList = {
   user_name: string;
   img: string;
   status: TaskStatus;
+  task_order: number;
 };
 export type TaskDetail = {
   task_id: string;
@@ -55,3 +56,14 @@ export type DeleteTaskReq = {
 };
 
 export type DeleteTaskRes = VoidResponse;
+
+export type ChangeStatusAndOrderReq = {
+  body: ChangeStatusAndOrderBody;
+};
+
+export type ChangeStatusAndOrderBody = {
+  task_id: string;
+  order: number;
+  status: string;
+};
+export type ChangeStatusAndOrderRes = VoidResponse;

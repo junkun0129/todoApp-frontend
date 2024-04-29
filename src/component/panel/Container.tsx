@@ -2,7 +2,7 @@ import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
-import { UniqueIdentifier } from "@dnd-kit/core";
+import { UniqueIdentifier, useDroppable } from "@dnd-kit/core";
 type ContainerProps = {
   id: UniqueIdentifier;
   children: React.ReactNode;
@@ -31,16 +31,20 @@ const Container = ({
       type: "container",
     },
   });
+  const { setNodeRef: droppableRef } = useDroppable({
+    id,
+    data: { type: "container" },
+  });
   return (
     <div
       {...attributes}
-      ref={setNodeRef}
+      ref={droppableRef}
       style={{
         transition,
         transform: CSS.Translate.toString(transform),
       }}
       className={clsx(
-        "w-full h-full p-4 bg-gray-50 rounded-xl flex flex-col gap-y-4",
+        "w-full h-full p-4 bg-red-50 rounded-xl flex flex-col gap-y-4",
         isDragging && "opacity-50"
       )}
     >
