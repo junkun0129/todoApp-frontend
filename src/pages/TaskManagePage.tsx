@@ -72,7 +72,7 @@ const TaskManagePage = () => {
   const [containerName, setContainerName] = useState("");
   const [itemName, setItemName] = useState("");
   const [createModalOpen, setcreateModalOpen] = useState<boolean>(false);
-  const { data, isSuccess } = useGetTaskListQuery();
+  const { data, isSuccess, refetch } = useGetTaskListQuery();
   const [createTaskMutation] = useCreateTaskMutation();
   useEffect(() => {
     if (!isSuccess) return;
@@ -84,8 +84,6 @@ const TaskManagePage = () => {
       const index = containers.findIndex(
         (obj, i) => obj.status_type === item.status
       );
-      console.log(item, defaultNewIndexGetter);
-      console.log(index);
       const newItem: DNDItem = {
         task_id: item.task_id as UniqueIdentifier,
         title: item.title,
@@ -98,6 +96,13 @@ const TaskManagePage = () => {
       const newContainers = containers.map((container, i) => {
         if (index === i) {
           container.items.push(newItem);
+        }
+        return container;
+      });
+      if (!newContainers.length) return;
+      const sortedContainer = newContainers.map((container, i) => {
+        if (container.items.length) {
+          container.items.sort((a, b) => a.task_order - b.task_order);
         }
         return container;
       });
@@ -154,6 +159,8 @@ const TaskManagePage = () => {
       } else {
         const response = res.data as CreateTaskRes;
         message.success(response.result);
+        refetch();
+        setcreateModalOpen(false);
       }
     });
   };

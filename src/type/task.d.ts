@@ -16,6 +16,7 @@ export type TaskDetail = {
   created_at: string;
   user_name: string;
   img: string;
+  status: string;
 };
 
 export type GetTaskListReq = {

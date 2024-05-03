@@ -13,6 +13,7 @@ import { setScreenSize } from "./slice/appSlice";
 import ReportManagePage from "./pages/ReportManagePage";
 import TaskManagePage from "./pages/TaskManagePage";
 import EditProfilePage from "./pages/EditProfilePage";
+import Jikken from "./pages/Jikken";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -56,6 +57,7 @@ function App() {
               path={appRoute.userEdit}
               element={<EditProfilePage />}
             ></Route>
+            <Route path={appRoute.attendCreate} element={<Jikken />}></Route>
             <Route
               path={appRoute.taskManage}
               element={<TaskManagePage />}

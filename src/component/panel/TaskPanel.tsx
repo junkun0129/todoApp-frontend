@@ -26,8 +26,19 @@ import { DNDType } from "../../pages/TaskManagePage";
 import {
   ChangeStatusAndOrderBody,
   ChangeStatusAndOrderReq,
+  GetTaskDetailReq,
+  GetTaskDetailRes,
+  TaskDetail,
+  UpdateTaskReq,
+  UpdateTaskRes,
 } from "../../type/task";
-import { useChangeStatusAndOrderMutation } from "../../api/taskApi";
+import {
+  useChangeStatusAndOrderMutation,
+  useGetTaskDetailMutation,
+  useUpdateTaskMutation,
+} from "../../api/taskApi";
+import { Button, Form, Input, Modal } from "antd";
+import TextArea from "antd/es/input/TextArea";
 
 // Components
 
@@ -41,7 +52,11 @@ export default function TaskPanel({ dataSource }) {
     useState<UniqueIdentifier>();
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [updateStatAndOrderMutation] = useChangeStatusAndOrderMutation();
-
+  const [itemEditModalOpen, setitemEditModalOpen] = useState<boolean>(false);
+  const [selectedItemId, setselectedItemId] = useState<string | null>(null);
+  const [selectedDetail, setselectedDetail] = useState<TaskDetail | null>(null);
+  const [getTaskDetailMutation] = useGetTaskDetailMutation();
+  const [updateTaskMutation] = useUpdateTaskMutation();
   // Find the value of the items
   function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
     console.log("object");
@@ -81,10 +96,8 @@ export default function TaskPanel({ dataSource }) {
   };
   const findItem = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, "item");
-    console.log(container);
     if (!container) return null;
     const item = container.items.find((item) => item.task_id === id);
-    console.log(item);
     if (!item) return null;
     return item;
   };
@@ -197,37 +210,30 @@ export default function TaskPanel({ dataSource }) {
 
   function getNextOrder(event: DragEndEvent) {
     const items: string[] = event.active.data.current.sortable.items;
-    console.log(items);
-    console.log(event);
     const active = event.active;
-    if (!items.length) {
-      return 1;
-    } else {
-      const activeIndex = items.findIndex((item) => item === activeId);
-      const oneBeforeItem = findItem(items[activeIndex - 1]);
-      const container = findValueOfItems(activeId, "item");
-      console.log(oneBeforeItem);
-      const body: ChangeStatusAndOrderBody = {
-        order: oneBeforeItem.task_order + 1,
-        task_id: active.id as string,
-        status: container.title,
-      };
-      console.log(body);
-      return body;
-    }
+
+    const activeIndex = items.findIndex((item) => item === activeId);
+    const oneBeforeItem = findItem(items[activeIndex - 1]);
+    const container = findValueOfItems(activeId, "item");
+    const body: ChangeStatusAndOrderBody = {
+      order: oneBeforeItem ? oneBeforeItem.task_order + 1 : 1,
+      task_id: active.id as string,
+      status: container.title,
+    };
+    return body;
   }
+  useEffect(() => {
+    console.log(containers);
+  }, [containers]);
   // This is the function that handles the sorting of the containers and items when the user is done dragging.
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    console.log(event);
     // Handling item Sorting
     const body = getNextOrder(event);
     const request: ChangeStatusAndOrderReq = {
       body: body as ChangeStatusAndOrderBody,
     };
-    updateStatAndOrderMutation(request).then((res: any) => {
-      console.log(res);
-    });
+    updateStatAndOrderMutation(request).then((res: any) => {});
     if (
       active &&
       over &&
@@ -320,13 +326,63 @@ export default function TaskPanel({ dataSource }) {
   };
 
   // Container Component の追加も検討
+  const onItemClick = async (id: string) => {
+    const request: GetTaskDetailReq = {
+      body: {
+        task_id: id,
+      },
+    };
+    const response: any = await getTaskDetailMutation(request);
+    const data: GetTaskDetailRes = response.data;
+    if (data.result === "failed") return;
+    setselectedDetail(data.data);
+    setitemEditModalOpen(true);
+  };
+  const onCloseItemDetail = () => {
+    setselectedDetail(null);
+    setitemEditModalOpen(false);
+  };
+  const handleUpdateDetail = async (values: Record<string, any>) => {
+    console.log(values);
+    if (!selectedDetail) return;
+    if (!values) return;
+    const { task_id, status } = selectedDetail;
+    const request: UpdateTaskReq = {
+      body: {
+        task_id,
+        title: values.title,
+        body: values.body,
+        status,
+      },
+    };
 
+    const response: any = await updateTaskMutation(request);
+    const data: UpdateTaskRes = response.data;
+  };
   return (
     <div className="mx-auto max-w-7xl py-10">
       {/* Add Container Modal */}
 
       {/* Add Item Modal */}
-
+      <Modal
+        destroyOnClose
+        open={itemEditModalOpen}
+        onCancel={onCloseItemDetail}
+      >
+        {selectedDetail ? (
+          <Form onFinish={handleUpdateDetail}>
+            <Form.Item label={"title"} name={"title"}>
+              <Input value={selectedDetail.title} />
+            </Form.Item>
+            <Form.Item label={"body"} name={"body"}>
+              <TextArea value={selectedDetail.body} />
+            </Form.Item>
+            <Button htmlType="submit"></Button>
+          </Form>
+        ) : (
+          <div>no contant</div>
+        )}
+      </Modal>
       <div className="mt-10">
         <div className="grid grid-cols-3 gap-6">
           <DndContext
@@ -352,7 +408,12 @@ export default function TaskPanel({ dataSource }) {
                   >
                     <div className=" flex items-start flex-col gap-y-4 h-[300px] overflow-auto">
                       {container.items.map((i) => (
-                        <Items title={i.title} id={i.task_id} key={i.task_id} />
+                        <Items
+                          onClick={() => onItemClick(i.task_id as string)}
+                          title={i.title}
+                          id={i.task_id}
+                          key={i.task_id}
+                        />
                       ))}
                     </div>
                   </SortableContext>

@@ -7,9 +7,10 @@ import clsx from "clsx";
 type ItemsType = {
   id: UniqueIdentifier;
   title: string;
+  onClick?: () => void;
 };
 
-const Items = ({ id, title }: ItemsType) => {
+const Items = ({ id, title, onClick }: ItemsType) => {
   const {
     attributes,
     listeners,
@@ -35,6 +36,7 @@ const Items = ({ id, title }: ItemsType) => {
         "px-2 py-4 bg-white shadow-md rounded-xl w-full border border-transparent hover:border-gray-200 cursor-pointer",
         isDragging && "opacity-50"
       )}
+      onClick={onClick}
     >
       <div className="flex items-center justify-between">
         {title}

@@ -55,7 +55,7 @@ const AppSideBar = () => {
       label: "連絡管理",
     },
     {
-      key: "grp-2",
+      key: "grp-3",
       type: "group",
       label: "ユーザー",
     },

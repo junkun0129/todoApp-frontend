@@ -27,7 +27,7 @@ export const taskApi = createApi({
     getTaskDetail: builder.mutation<GetTaskDetailRes, GetTaskDetailReq>({
       query: ({ body }) => ({
         url: "/task/detail",
-        method: "GET",
+        method: "POST",
         body,
       }),
     }),
