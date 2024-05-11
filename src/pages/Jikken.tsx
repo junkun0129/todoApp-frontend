@@ -7,6 +7,11 @@ import {
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import DailyTaskCard from "../component/card/DailyTaskCard";
 import { TaskList } from "../type/task";
+import { Button, Form, Modal, Select } from "antd";
+import TextArea from "antd/es/input/TextArea";
+import { useCreateReportMutation } from "../api/reportApi";
+import { getReportTimestamp } from "../util/util";
+import { CreateReportReq } from "../type/report";
 type SliderSlice = {
   pointer: ISettingsPointer;
   coordinate: { x: number; y: number };
@@ -76,20 +81,21 @@ const Jikken = () => {
       task_order: 3,
     },
   ]);
-  const MAX_HOUR = 12;
+  const [maxHour, setmaxHour] = useState(8);
   const [pointers, setpointers] = React.useState<ISettingsPointer[]>([]);
   const [draggingIndex, setdraggingIndex] = useState<number | null>(null);
-  const [itemsOnCircle, setitemsOnCircle] = useState<TaskList[]>([]);
-  const [coodinates, setcoodinates] = useState<{ x: number; y: number }[]>([]);
   const circleWidth = 320;
   const circleHeight = 320;
   const circleRef = useRef<SVGCircleElement>();
+  const [isDetailModalOpen, setisDetailModalOpen] = useState<boolean>(false);
+  const [modalDetail, setmodalDetail] = useState<TaskList | null>(null);
+  const [indexOfOpenModal, setindexOfOpenModal] = useState<null | number>(null);
   const [dragOverlayIndex, setdragOverlayIndex] = useState<{
     index: number;
     coordinate1: { x: number; y: number };
     coordinate2: { x: number; y: number };
   } | null>(null);
-
+  const [createReportMutation] = useCreateReportMutation();
   const handleOnChange = (newPointers: ISettingsPointer[]) => {
     console.log(newPointers);
     updateRoundSlider(newPointers);
@@ -108,19 +114,24 @@ const Jikken = () => {
     const { point } = info;
 
     const dropLocation = findDropLocation(point.x, point.y);
-    const value1 = pointers[circleIndex].value;
-    const value2 = pointers[circleIndex + 1].value;
-    if (value1 <= dropLocation && dropLocation <= value2) {
+    const original1 = pointers[circleIndex];
+    const original2 = pointers[circleIndex + 1];
+    //元々あった場所にドロップされた場合
+    if (original1.value <= dropLocation && dropLocation <= original2.value) {
     } else {
       let newPointers = pointers.filter(
         (pointer, i) => i !== circleIndex && i !== circleIndex + 1
       );
+
+      const coordinate1 = calculatePointCoordinates(dropLocation);
+      const coordinate2 = calculatePointCoordinates(dropLocation + 1);
       newPointers = [
         ...newPointers,
-        { value: dropLocation, bgColor: { x: 0, y: 0 } },
-        { value: dropLocation + 1, bgColor: { x: 0, y: 0 } },
+        { ...original1, value: dropLocation, borderColor: coordinate1 },
+        { ...original2, value: dropLocation + 1, borderColor: coordinate2 },
       ];
-      updateRoundSlider(newPointers);
+
+      setpointers(newPointers);
     }
     setdragOverlayIndex(null);
     setdraggingIndex(null);
@@ -139,7 +150,11 @@ const Jikken = () => {
     }
   };
 
-  const handleTaskDragEnd = (info: PanInfo, taskIndex: number) => {
+  const handleTaskDragEnd = (
+    info: PanInfo,
+    taskIndex: number,
+    taskList: TaskList
+  ) => {
     const { point } = info;
 
     const dropLocation = findDropLocation(point.x, point.y);
@@ -148,18 +163,39 @@ const Jikken = () => {
       (pointer) => pointer.value === dropLocation
     );
     if (!overlaps.length) {
-      let newPointers: ISettingsPointer[] = [
-        ...pointers,
-        { value: dropLocation, bgColor: { x: 0, y: 0 } },
-        { value: dropLocation + 1, bgColor: { x: 0, y: 0 } },
+      const coordinate1 = calculatePointCoordinates(dropLocation);
+      const coordinate2 = calculatePointCoordinates(dropLocation + 1);
+      console.log(coordinate1, "coordinate1");
+      console.log(coordinate2, "coordinate2");
+
+      let addPointers: ISettingsPointer[] = [
+        {
+          value: dropLocation,
+          borderColor: coordinate1,
+          bgColor: taskList,
+          bgColorDisabled: { result: "", improve: "" },
+          bgColorHover: { starttime: dropLocation, endtime: dropLocation + 1 },
+          ariaLabel: "lskdlj",
+        },
+        {
+          value: dropLocation + 1,
+          borderColor: coordinate2,
+          bgColor: taskList,
+          bgColorDisabled: { result: "", improve: "" },
+          bgColorHover: { starttime: dropLocation, endtime: dropLocation + 1 },
+          ariaLabel: "lskdlj",
+        },
       ];
-      updateRoundSlider(newPointers);
-      const newTaskItems = taskItems.filter((item, i) => i !== taskIndex);
-      settaskItems(newTaskItems);
+      const newPointers = [...pointers, ...addPointers];
+      setpointers(newPointers);
       setdragOverlayIndex(null);
     } else {
     }
   };
+
+  useEffect(() => {
+    console.log(pointers);
+  }, [pointers]);
 
   const handleTaskDrag = (info: PanInfo) => {
     const { point } = info;
@@ -174,6 +210,30 @@ const Jikken = () => {
     }
   };
 
+  const handleWorkHour = (value: number) => {
+    setmaxHour(value);
+  };
+
+  const handleCreateReport = async () => {
+    const timestamp = getReportTimestamp();
+    console.log(timestamp);
+    const request: CreateReportReq = { body: { date: timestamp } };
+    const response = await createReportMutation(request);
+    console.log(response);
+  };
+
+  const onDailyTaskCardClick = (taskList: TaskList, i: number) => {
+    console.log(taskList);
+    setisDetailModalOpen(true);
+    setmodalDetail(taskList);
+    setindexOfOpenModal(i);
+  };
+  const onDetailModalCancel = () => {
+    setisDetailModalOpen(false);
+    setmodalDetail(null);
+    setindexOfOpenModal(null);
+  };
+
   //util functions
   function calculatePointCoordinates(value: number) {
     const radius = circleWidth / 2;
@@ -181,8 +241,8 @@ const Jikken = () => {
     const originY = 0;
     const centerX = 160;
     const centerY = 160;
-    const adjustedValue2 = (value + MAX_HOUR / 4) % MAX_HOUR; // 時計の位置を調整
-    const angle = (360 / MAX_HOUR) * adjustedValue2 - 180;
+    const adjustedValue2 = (value + maxHour / 4) % maxHour; // 時計の位置を調整
+    const angle = (360 / maxHour) * adjustedValue2 - 180;
     let x = originX + centerX + radius * Math.cos((angle * Math.PI) / 180);
     let y = originY + centerY + radius * Math.sin((angle * Math.PI) / 180);
     return { x, y };
@@ -194,33 +254,40 @@ const Jikken = () => {
     const circleX = circleRect.left + circleRect.width / 2;
     const circleY = circleRect.top + circleRect.height / 2;
     const radius = circleRect.width / 2;
-    return calcIsInsideCircle(circleX, circleY, x, y, radius, MAX_HOUR);
+    return calcIsInsideCircle(circleX, circleY, x, y, radius, maxHour);
   }
 
   function updateRoundSlider(newPointers: ISettingsPointer[]) {
-    let coodinateContainer = [];
-    newPointers.map((pointer, i) => {
+    const newPointersWithCoordinates = newPointers.map((pointer, i) => {
       const { value } = pointer;
       const coordinate = calculatePointCoordinates(value);
-      coodinateContainer.push(coordinate);
+      return { ...pointer, borderColor: coordinate };
     });
-    setcoodinates(coodinateContainer);
-    setpointers(newPointers);
+    setpointers(newPointersWithCoordinates);
   }
 
   return (
     <div
       style={{ border: "1px solid black" }}
-      className=" relative  w-full h-full flex items-center justify-center"
+      className=" relative  w-full h-full flex items-center justify-center flex-col"
     >
-      {/* svg area */}
-
-      {/* <div style={{ width: "100px", height: "100px" }}></div> */}
+      <Button onClick={handleCreateReport}>test</Button>
+      <div className="flex">
+        <div>就業時間</div>
+        <Select
+          options={[
+            { value: 4, label: "4時間" },
+            { value: 8, label: "8時間" },
+          ]}
+          value={maxHour}
+          onChange={handleWorkHour}
+        />
+      </div>
       <svg
         onMouseEnter={() => console.log("object")}
         width={circleWidth}
         height={circleHeight}
-        className="w-full h-full relative"
+        className="w-full h-[60%] relative"
       >
         {/* circle for masure */}
         <motion.circle
@@ -238,7 +305,7 @@ const Jikken = () => {
                 drag
                 dragSnapToOrigin
                 onDrag={(event, info) => handleTaskDrag(info)}
-                onDragEnd={(event, info) => handleTaskDragEnd(info, i)}
+                onDragEnd={(event, info) => handleTaskDragEnd(info, i, item)}
                 className=" w-[80%] h-[10%] bg-blue-400 mt-5 flex justify-center items-center"
                 key={"taskitem-" + i}
               >
@@ -256,7 +323,7 @@ const Jikken = () => {
         >
           <div>
             <RoundSlider
-              max={MAX_HOUR}
+              max={maxHour}
               connectionBgColor="blue"
               pathStartAngle={270}
               pathEndAngle={269.999}
@@ -294,11 +361,12 @@ const Jikken = () => {
         )}
 
         {/* rendering slices */}
-        {coodinates.length >= 2 &&
-          coodinates.map(
-            (coodinate, i) =>
+        {pointers.length >= 2 &&
+          pointers.map(
+            (pointer, i) =>
               i % 2 === 0 && (
                 <DailyTaskCard
+                  onClick={() => onDailyTaskCardClick(pointer.bgColor, i)}
                   key={"dailytaskcard-" + i}
                   drag
                   dragSnapToOrigin
@@ -307,8 +375,8 @@ const Jikken = () => {
                   onDragEnd={(event, info) => handleDragEnd(event, info, i)}
                   circleX={circleWidth / 2}
                   circleY={circleHeight / 2}
-                  coodinates1={coodinates[i]}
-                  coodinates2={coodinates[i + 1]}
+                  coodinates1={pointers[i].borderColor}
+                  coodinates2={pointers[i + 1].borderColor}
                   isDragging={
                     draggingIndex !== null ? draggingIndex === i : false
                   }
@@ -316,6 +384,18 @@ const Jikken = () => {
               )
           )}
       </svg>
+
+      <h1>+</h1>
+      <Modal open={isDetailModalOpen} onCancel={onDetailModalCancel}>
+        {modalDetail && (
+          <div>
+            <div>{modalDetail.title}</div>
+            <div>{modalDetail.status}</div>
+            <TextArea />
+            <TextArea />
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

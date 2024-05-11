@@ -5,16 +5,19 @@ type Props = {
   circleY: number;
   coodinates1: { x: number; y: number };
   coodinates2: { x: number; y: number };
+  onClick: () => void;
   isDragging: boolean;
 };
 const DailyTaskCard = React.forwardRef(
   (
-    { circleX, circleY, coodinates1, coodinates2, isDragging }: Props,
+    { circleX, circleY, coodinates1, coodinates2, isDragging, onClick }: Props,
     ref: React.Ref<SVGAElement>
   ) => {
     useEffect(() => {
       console.log(isDragging);
     }, [isDragging]);
+    console.log(coodinates1);
+    console.log(coodinates2);
     return (
       <>
         {isDragging ? (
@@ -35,7 +38,7 @@ const DailyTaskCard = React.forwardRef(
             </defs>
           </g>
         ) : (
-          <g ref={ref} clipPath="url(#clip)">
+          <g onClick={onClick} ref={ref} clipPath="url(#clip)">
             <path
               d={`M ${circleX},${circleY} L ${coodinates1.x},${coodinates1.y} A ${circleX},${circleY} 0 1,1 ${coodinates2.x},${coodinates2.y} L ${circleX},${circleY} Z`}
               fill="rgba(0, 0, 0, 0.5)"

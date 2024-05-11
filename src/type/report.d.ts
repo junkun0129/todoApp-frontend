@@ -15,8 +15,7 @@ export type ReportList = {
 };
 export type CreateReportReq = {
   body: {
-    title: string;
-    body: string;
+    date: string;
   };
 };
 

@@ -25,7 +25,24 @@ export const userApi = createApi({
         },
       }),
     }),
+    updateImg: builder.mutation({
+      query: (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        console.log(file);
+
+        return {
+          url: "/user/imgupdate",
+          method: "POST",
+          body: formData,
+        };
+      },
+    }),
   }),
 });
 
-export const { useUpdateProfileMutation, useGetProfileQuery } = userApi;
+export const {
+  useUpdateProfileMutation,
+  useGetProfileQuery,
+  useUpdateImgMutation,
+} = userApi;
