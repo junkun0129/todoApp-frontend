@@ -16,7 +16,16 @@ export type ReportList = {
 export type CreateReportReq = {
   body: {
     date: string;
+    dailyTasks: DailyTask[];
   };
+};
+
+export type DailyTask = {
+  task_id: string;
+  result: string;
+  improve: string;
+  starttime: number;
+  endtime: number;
 };
 
 export type CreateReportRes = VoidResponse;

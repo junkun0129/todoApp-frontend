@@ -7,11 +7,12 @@ import {
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import DailyTaskCard from "../component/card/DailyTaskCard";
 import { TaskList } from "../type/task";
-import { Button, Form, Modal, Select } from "antd";
+import { Button, Form, Input, Modal, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useCreateReportMutation } from "../api/reportApi";
 import { getReportTimestamp } from "../util/util";
-import { CreateReportReq } from "../type/report";
+import { CreateReportReq, DailyTask } from "../type/report";
+import { useGetTaskListQuery } from "../api/taskApi";
 type SliderSlice = {
   pointer: ISettingsPointer;
   coordinate: { x: number; y: number };
@@ -50,37 +51,13 @@ function calcIsInsideCircle(
 
   return sliceIndex;
 }
-
+type ExtraMemo = {
+  title: string;
+  body: string;
+};
 const Jikken = () => {
-  const [taskItems, settaskItems] = useState<TaskList[]>([
-    {
-      task_id: "1",
-      title: "タスク1",
-      created_at: "2024-05-06",
-      user_name: "ユーザー1",
-      img: "画像1.jpg",
-      status: "NEW", // 仮にTaskStatusがenumで定義されていると仮定します
-      task_order: 1,
-    },
-    {
-      task_id: "2",
-      title: "タスク2",
-      created_at: "2024-05-07",
-      user_name: "ユーザー2",
-      img: "画像2.jpg",
-      status: "NEW",
-      task_order: 2,
-    },
-    {
-      task_id: "3",
-      title: "タスク3",
-      created_at: "2024-05-08",
-      user_name: "ユーザー3",
-      img: "画像3.jpg",
-      status: "NEW",
-      task_order: 3,
-    },
-  ]);
+  const [taskItems, settaskItems] = useState<TaskList[]>([]);
+  const [extraMemos, setextraMemos] = useState<ExtraMemo[]>([]);
   const [maxHour, setmaxHour] = useState(8);
   const [pointers, setpointers] = React.useState<ISettingsPointer[]>([]);
   const [draggingIndex, setdraggingIndex] = useState<number | null>(null);
@@ -96,6 +73,16 @@ const Jikken = () => {
     coordinate2: { x: number; y: number };
   } | null>(null);
   const [createReportMutation] = useCreateReportMutation();
+  const { data: taskListData, isSuccess } = useGetTaskListQuery();
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    const newTaskList = taskListData.data.filter(
+      (task, i) => task.status === "NEW" || task.status === "PROCESS"
+    );
+    settaskItems(newTaskList);
+  }, [taskListData]);
+
   const handleOnChange = (newPointers: ISettingsPointer[]) => {
     console.log(newPointers);
     updateRoundSlider(newPointers);
@@ -187,15 +174,14 @@ const Jikken = () => {
         },
       ];
       const newPointers = [...pointers, ...addPointers];
+
+      const newTaskItems = taskItems.filter((task, i) => i !== taskIndex);
+      settaskItems(newTaskItems);
       setpointers(newPointers);
       setdragOverlayIndex(null);
     } else {
     }
   };
-
-  useEffect(() => {
-    console.log(pointers);
-  }, [pointers]);
 
   const handleTaskDrag = (info: PanInfo) => {
     const { point } = info;
@@ -214,10 +200,28 @@ const Jikken = () => {
     setmaxHour(value);
   };
 
-  const handleCreateReport = async () => {
+  const handleSubmit = async () => {
+    let dailyTasks: DailyTask[] = [];
+    pointers.map((pointer, i) => {
+      if (i % 2 === 0) {
+        const dailyTask: DailyTask = {
+          task_id: pointer.bgColor.task_id,
+          result: pointer.bgColorDisabled.result,
+          improve: pointer.bgColorDisabled.improve,
+          starttime: pointer.value,
+          endtime: pointers[i + 1].value,
+        };
+        dailyTasks.push(dailyTask);
+      }
+    });
     const timestamp = getReportTimestamp();
-    console.log(timestamp);
-    const request: CreateReportReq = { body: { date: timestamp } };
+
+    const request: CreateReportReq = {
+      body: {
+        date: timestamp,
+        dailyTasks,
+      },
+    };
     const response = await createReportMutation(request);
     console.log(response);
   };
@@ -232,6 +236,34 @@ const Jikken = () => {
     setisDetailModalOpen(false);
     setmodalDetail(null);
     setindexOfOpenModal(null);
+  };
+
+  const onAddExtraMemo = () => {
+    const newExtraMemo = { title: "", body: "" };
+    setextraMemos((pre) => [...pre, newExtraMemo]);
+  };
+
+  const onDeleteExtraMemo = (selectedIndex: number) => {
+    console.log(selectedIndex);
+    console.log(extraMemos);
+    const newExtraMemos = extraMemos.filter((memo, i) => i !== selectedIndex);
+    console.log(newExtraMemos);
+    setextraMemos(newExtraMemos);
+  };
+
+  const handleExtraTitleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    selectedIndex: number
+  ) => {
+    const { value } = e.target;
+    const newExtraMemos = (extraMemos[selectedIndex].title = value);
+  };
+  const handleExtraBodyChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+    selectedIndex: number
+  ) => {
+    const { value } = e.target;
+    const newExtraMemos = (extraMemos[selectedIndex].body = value);
   };
 
   //util functions
@@ -271,7 +303,7 @@ const Jikken = () => {
       style={{ border: "1px solid black" }}
       className=" relative  w-full h-full flex items-center justify-center flex-col"
     >
-      <Button onClick={handleCreateReport}>test</Button>
+      <Button onClick={handleSubmit}>test</Button>
       <div className="flex">
         <div>就業時間</div>
         <Select
@@ -385,14 +417,35 @@ const Jikken = () => {
           )}
       </svg>
 
-      <h1>+</h1>
+      {/* Extra Memo */}
+      {extraMemos.length &&
+        extraMemos.map((memo, i) => {
+          return (
+            <div key={"extramemo-" + i}>
+              <Input onChange={(e) => handleExtraTitleChange(e, i)} />
+              <TextArea onChange={(e) => handleExtraBodyChange(e, i)} />
+              <Button onClick={() => onDeleteExtraMemo(i)}>✕</Button>
+            </div>
+          );
+        })}
+      <Button onClick={onAddExtraMemo}>+</Button>
+
+      {/* Detail Modal */}
       <Modal open={isDetailModalOpen} onCancel={onDetailModalCancel}>
-        {modalDetail && (
+        {modalDetail && indexOfOpenModal && (
           <div>
             <div>{modalDetail.title}</div>
             <div>{modalDetail.status}</div>
-            <TextArea />
-            <TextArea />
+            <TextArea
+              onChange={(value) =>
+                pointers[indexOfOpenModal].bgColorDisabled.result
+              }
+            />
+            <TextArea
+              onChange={(value) =>
+                pointers[indexOfOpenModal].bgColorDisabled.improve
+              }
+            />
           </div>
         )}
       </Modal>
