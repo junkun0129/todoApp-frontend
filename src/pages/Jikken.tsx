@@ -214,6 +214,21 @@ const Jikken = () => {
         dailyTasks.push(dailyTask);
       }
     });
+
+    if (extraMemos.length) {
+      extraMemos.map((memo, i) => {
+        const dailyTask: DailyTask = {
+          task_id: null,
+          result: memo.title,
+          improve: memo.body,
+          starttime: 0,
+          endtime: 0,
+        };
+
+        dailyTasks.push(dailyTask);
+      });
+    }
+
     const timestamp = getReportTimestamp();
 
     const request: CreateReportReq = {
