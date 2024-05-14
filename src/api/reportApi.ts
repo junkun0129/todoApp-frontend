@@ -23,9 +23,9 @@ export const reportApi = createApi({
       },
     }),
     getReports: builder.query<GetReportRes, GetReportsReq>({
-      query: ({ date }) => {
+      query: ({ user_id }) => {
         return {
-          url: `/report/list?date=${date}`,
+          url: `/report/list?user=${user_id}`,
           method: "GET",
         };
       },

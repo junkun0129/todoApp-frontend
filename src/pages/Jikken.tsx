@@ -1,4 +1,4 @@
-import { PanInfo, motion } from "framer-motion";
+import { AnimatePresence, PanInfo, motion } from "framer-motion";
 import {
   ISettings,
   ISettingsPointer,
@@ -230,10 +230,10 @@ const Jikken = () => {
     }
 
     const timestamp = getReportTimestamp();
-
+    console.log(timestamp);
     const request: CreateReportReq = {
       body: {
-        date: timestamp,
+        date: "20240517",
         dailyTasks,
       },
     };
@@ -259,10 +259,7 @@ const Jikken = () => {
   };
 
   const onDeleteExtraMemo = (selectedIndex: number) => {
-    console.log(selectedIndex);
-    console.log(extraMemos);
     const newExtraMemos = extraMemos.filter((memo, i) => i !== selectedIndex);
-    console.log(newExtraMemos);
     setextraMemos(newExtraMemos);
   };
 
@@ -279,6 +276,18 @@ const Jikken = () => {
   ) => {
     const { value } = e.target;
     const newExtraMemos = (extraMemos[selectedIndex].body = value);
+  };
+
+  const onResultInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let newPointers = pointers;
+    newPointers[indexOfOpenModal].bgColorDisabled.result = e.target.value;
+    setpointers(newPointers);
+  };
+
+  const onImproveInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let newPointers = pointers;
+    newPointers[indexOfOpenModal].bgColorDisabled.improve = e.target.value;
+    setpointers(newPointers);
   };
 
   //util functions
@@ -347,18 +356,22 @@ const Jikken = () => {
         {/* task tab */}
         <foreignObject width={"100%"} height={"100%"}>
           <div className="w-[50%] h-full absolute right-0 bg-blue-300 flex flex-col items-center">
-            {taskItems.map((item, i) => (
-              <motion.div
-                drag
-                dragSnapToOrigin
-                onDrag={(event, info) => handleTaskDrag(info)}
-                onDragEnd={(event, info) => handleTaskDragEnd(info, i, item)}
-                className=" w-[80%] h-[10%] bg-blue-400 mt-5 flex justify-center items-center"
-                key={"taskitem-" + i}
-              >
-                <div>{item.title}</div>
-              </motion.div>
-            ))}
+            <AnimatePresence>
+              {taskItems.map((item, i) => (
+                <motion.div
+                  whileHover={{ translateX: 20 }}
+                  whileDrag={{ width: "100px", height: "50px" }}
+                  drag
+                  dragSnapToOrigin
+                  onDrag={(event, info) => handleTaskDrag(info)}
+                  onDragEnd={(event, info) => handleTaskDragEnd(info, i, item)}
+                  className=" w-[80%] h-[50px] bg-blue-400 mt-5 flex justify-center items-center"
+                  key={"taskitem-" + i}
+                >
+                  <div>{item.title}</div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </foreignObject>
 
@@ -446,20 +459,26 @@ const Jikken = () => {
       <Button onClick={onAddExtraMemo}>+</Button>
 
       {/* Detail Modal */}
-      <Modal open={isDetailModalOpen} onCancel={onDetailModalCancel}>
+      <Modal
+        okButtonProps={{ style: { display: "none" } }}
+        cancelText={"戻る"}
+        cancelButtonProps={{ type: "primary" }}
+        open={isDetailModalOpen}
+        onCancel={onDetailModalCancel}
+      >
         {modalDetail && indexOfOpenModal && (
           <div>
-            <div>{modalDetail.title}</div>
-            <div>{modalDetail.status}</div>
+            <div>■タスク名：{modalDetail.title}</div>
+            <div className="mt-4">■タスク概要：{modalDetail.status}</div>
+            <div className="mt-4">■結果</div>
             <TextArea
-              onChange={(value) =>
-                pointers[indexOfOpenModal].bgColorDisabled.result
-              }
+              onChange={onResultInputChange}
+              defaultValue={pointers[indexOfOpenModal].bgColorDisabled.result}
             />
+            <div className="mt-4">■改善</div>
             <TextArea
-              onChange={(value) =>
-                pointers[indexOfOpenModal].bgColorDisabled.improve
-              }
+              onChange={onImproveInputChange}
+              defaultValue={pointers[indexOfOpenModal].bgColorDisabled.improve}
             />
           </div>
         )}

@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery, baseQueryWithReauth } from "./appApi";
 import { UpdateProfileRequest, UpdateProfileResponse } from "../type/api/user";
+import { GetUserListRes } from "../type/user";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -25,6 +26,12 @@ export const userApi = createApi({
         },
       }),
     }),
+    getUserList: builder.query<GetUserListRes, void>({
+      query: (email) => ({
+        url: `/user/list`,
+        method: "GET",
+      }),
+    }),
     updateImg: builder.mutation({
       query: (file) => {
         const formData = new FormData();
@@ -45,4 +52,5 @@ export const {
   useUpdateProfileMutation,
   useGetProfileQuery,
   useUpdateImgMutation,
+  useGetUserListQuery,
 } = userApi;

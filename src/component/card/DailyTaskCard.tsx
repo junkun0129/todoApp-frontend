@@ -23,8 +23,8 @@ const DailyTaskCard = React.forwardRef(
         {isDragging ? (
           <g ref={ref} clipPath="url(#clip)">
             <path
-              d={`M ${coodinates1.x},${coodinates1.y} L ${coodinates2.x},${coodinates1.y} L ${coodinates2.x},${coodinates2.y} L ${coodinates1.x},${coodinates2.y} Z`}
-              fill="rgba(0, 0, 0, 0.5)"
+              d={`M ${circleX},${circleY} L ${coodinates1.x},${coodinates1.y} A ${circleX},${circleY} 0 1,1 ${coodinates2.x},${coodinates2.y} L ${circleX},${circleY} Z`}
+              fill={"red"}
             />
             <defs>
               <clipPath id="clip">
@@ -38,10 +38,18 @@ const DailyTaskCard = React.forwardRef(
             </defs>
           </g>
         ) : (
-          <g onClick={onClick} ref={ref} clipPath="url(#clip)">
+          <motion.g
+            whileHover={{
+              scale: 1.03,
+            }}
+            whileTap={{ scale: 1.05 }}
+            onClick={onClick}
+            ref={ref}
+            clipPath="url(#clip)"
+          >
             <path
               d={`M ${circleX},${circleY} L ${coodinates1.x},${coodinates1.y} A ${circleX},${circleY} 0 1,1 ${coodinates2.x},${coodinates2.y} L ${circleX},${circleY} Z`}
-              fill="rgba(0, 0, 0, 0.5)"
+              fill={"red"}
             />
             <defs>
               <clipPath id="clip">
@@ -53,7 +61,7 @@ const DailyTaskCard = React.forwardRef(
                 />
               </clipPath>
             </defs>
-          </g>
+          </motion.g>
         )}
       </>
     );

@@ -1,17 +1,8 @@
 import { Result, VoidResponse } from "./common";
-export type Report = {
-  report_id: string;
-  user_id: string;
-  created_at: string;
-  title: string;
-  body: string;
-};
 
 export type ReportList = {
-  title: string;
-  user_name: string;
-  img: string;
-  created_at: string;
+  report: { date: string };
+  dailytasks: DailyTask[];
 };
 export type CreateReportReq = {
   body: {
@@ -31,7 +22,7 @@ export type DailyTask = {
 export type CreateReportRes = VoidResponse;
 
 export type GetReportsReq = {
-  date: string;
+  user_id: string;
 };
 
 export type GetReportRes = {

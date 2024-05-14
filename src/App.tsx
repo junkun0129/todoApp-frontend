@@ -41,10 +41,7 @@ function App() {
 
           <Route element={<Applayout />}>
             <Route path="/" element={<Home />}></Route>
-            <Route
-              path={appRoute.reportCreate}
-              element={<ReportCreatePage />}
-            ></Route>
+            <Route path={appRoute.reportCreate} element={<Jikken />}></Route>
             <Route
               path={appRoute.reportList}
               element={<ReportManagePage />}
