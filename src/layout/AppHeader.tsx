@@ -7,12 +7,7 @@ const AppHeader = () => {
     (state) => state.persistedReducer.userReducer
   );
   return (
-    <Header
-      style={{
-        backgroundColor: "lightcoral",
-      }}
-      className={`w-full`}
-    >
+    <Header className={`w-full`}>
       <h1>ユーザー名：{user.user_name}</h1>
       <img src={user.img}></img>
     </Header>

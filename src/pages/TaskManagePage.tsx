@@ -47,19 +47,19 @@ export type DNDType = {
 const dataContainer: DNDType[] = [
   {
     id: "container-1",
-    title: "NEW",
+    title: "新規タスク",
     status_type: "NEW",
     items: [],
   },
   {
     id: "container-2",
-    title: "PROCESS",
+    title: "取組中のタスク",
     status_type: "PROCESS",
     items: [],
   },
   {
     id: "container-3",
-    title: "DONE",
+    title: "完了済みタスク",
     status_type: "DONE",
     items: [],
   },
@@ -118,37 +118,7 @@ const TaskManagePage = () => {
   useEffect(() => {
     console.log(containers);
   }, [containers]);
-  //DND Handlers
-  const findValueOfItems = (id: UniqueIdentifier | undefined, type: string) => {
-    if (type === "container") {
-      return containers.find((container) => container.id === id);
-    }
-    if (type === "items") {
-      return containers.find((container, i) =>
-        container.items.find((item) => item.task_id === id)
-      );
-    }
-  };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-  const handleDragStart = (e: DragStartEvent) => {
-    setActiveId(e.active.id);
-  };
-  const handleDragMove = (e: DragMoveEvent) => {
-    // const { active, over } = e;
-    // console.log(e);
-  };
-  const handleDragOver = (e: DragOverEvent) => {
-    console.log(e, "dragover");
-  };
-  const handleDragEnd = (e: DragEndEvent) => {
-    console.log("dragend :>> ", e);
-  };
   const handleCreate = (values) => {
     const request: CreateTaskReq = {
       body: values,

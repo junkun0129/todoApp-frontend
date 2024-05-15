@@ -44,7 +44,7 @@ const Items = ({ id, title, onClick }: ItemsType) => {
           className="border p-2 text-xs rounded-xl shadow-lg hover:shadow-xl"
           {...listeners}
         >
-          Drag Handle
+          :::
         </button>
       </div>
     </div>

@@ -53,12 +53,6 @@ const Container = ({
           <h1 className="text-gray-800 text-xl">{title}</h1>
           <p className="text-gray-400 text-sm">{description}</p>
         </div>
-        <button
-          className="border p-2 text-xs rounded-xl shadow-lg hover:shadow-xl"
-          {...listeners}
-        >
-          Drag Handle
-        </button>
       </div>
 
       {children}

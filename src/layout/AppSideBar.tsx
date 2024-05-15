@@ -1,4 +1,4 @@
-import { Menu, MenuProps } from "antd";
+import { ConfigProvider, Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";

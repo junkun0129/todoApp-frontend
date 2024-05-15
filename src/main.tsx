@@ -18,6 +18,18 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 colorPrimaryHover: "rgb(176, 149, 102)",
                 colorPrimaryActive: "rgb(178, 158, 82)",
               },
+              Menu: {
+                itemBg: "rgb(53, 125, 17)",
+                itemColor: "rgba(255, 255, 255, 0.88)",
+                itemSelectedColor: "rgb(255, 255, 255)",
+                itemSelectedBg: "rgb(95, 172, 95)",
+                itemActiveBg: "rgb(82, 196, 26)",
+                itemHoverColor: "rgba(255, 255, 255, 0.88)",
+                groupTitleColor: "rgba(255, 255, 255, 0.53)",
+              },
+              Layout: {
+                headerBg: "rgb(53, 125, 17)",
+              },
             },
           }}
         >

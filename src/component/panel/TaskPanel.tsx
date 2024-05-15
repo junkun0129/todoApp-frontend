@@ -312,7 +312,6 @@ export default function TaskPanel({ dataSource }) {
       overContainer.items.push(removedItem); // Always add the item to the over container
       setContainers(newItems);
     }
-    console.log("object");
     setActiveId(null);
   };
 
@@ -360,7 +359,7 @@ export default function TaskPanel({ dataSource }) {
     const data: UpdateTaskRes = response.data;
   };
   return (
-    <div className="mx-auto max-w-7xl py-10">
+    <div className="mx-auto max-w-7xl">
       {/* Add Container Modal */}
 
       {/* Add Item Modal */}
@@ -383,7 +382,7 @@ export default function TaskPanel({ dataSource }) {
           <div>no contant</div>
         )}
       </Modal>
-      <div className="mt-10">
+      <div className="">
         <div className="grid grid-cols-3 gap-6">
           <DndContext
             sensors={sensors}
