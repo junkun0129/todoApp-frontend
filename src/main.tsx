@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { persistor, store } from "./store/store.ts";
 import { PersistGate } from "redux-persist/integration/react";
 import { ConfigProvider } from "antd";
+import { themeColor } from "./constants/style.const.ts";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <>
     <Provider store={store}>
@@ -19,7 +20,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 colorPrimaryActive: "rgb(178, 158, 82)",
               },
               Menu: {
-                itemBg: "rgb(53, 125, 17)",
+                itemBg: themeColor.layoutBg,
                 itemColor: "rgba(255, 255, 255, 0.88)",
                 itemSelectedColor: "rgb(255, 255, 255)",
                 itemSelectedBg: "rgb(95, 172, 95)",

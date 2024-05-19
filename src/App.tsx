@@ -5,15 +5,15 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Applayout from "./layout/Applayout";
 import SignIn from "./pages/SignIn";
-import ReportCreatePage from "./pages/ReportCreatePage";
 import { appRoute } from "./constants/routes";
 import { useAppDispatch } from "./store/store";
 import { useEffect } from "react";
 import { setScreenSize } from "./slice/appSlice";
 import ReportManagePage from "./pages/ReportManagePage";
-import TaskManagePage from "./pages/TaskManagePage";
 import EditProfilePage from "./pages/EditProfilePage";
-import Jikken from "./pages/Jikken";
+import ReportCreate from "./pages/ReportCreate";
+import TaskManagePage from "./pages/TaskManagePage";
+import UserReportManagePage from "./pages/UserReportManagePage";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -41,7 +41,10 @@ function App() {
 
           <Route element={<Applayout />}>
             <Route path="/" element={<Home />}></Route>
-            <Route path={appRoute.reportCreate} element={<Jikken />}></Route>
+            <Route
+              path={appRoute.reportCreate}
+              element={<ReportCreate />}
+            ></Route>
             <Route
               path={appRoute.reportList}
               element={<ReportManagePage />}
@@ -49,12 +52,23 @@ function App() {
             <Route
               path={appRoute.reportList}
               element={<ReportManagePage />}
+            ></Route>
+            <Route
+              path={appRoute.reportUserDetail}
+              element={<UserReportManagePage />}
             ></Route>
             <Route
               path={appRoute.userEdit}
               element={<EditProfilePage />}
             ></Route>
-            <Route path={appRoute.attendCreate} element={<Jikken />}></Route>
+            <Route
+              path={appRoute.attendCreate}
+              element={
+                <div className=" relative">
+                  <div className=" absolute w-[500px] h-[100px] bg-red-50"></div>
+                </div>
+              }
+            ></Route>
             <Route
               path={appRoute.taskManage}
               element={<TaskManagePage />}

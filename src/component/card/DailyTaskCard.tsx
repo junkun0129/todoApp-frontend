@@ -24,7 +24,7 @@ const DailyTaskCard = React.forwardRef(
           <g ref={ref} clipPath="url(#clip)">
             <path
               d={`M ${circleX},${circleY} L ${coodinates1.x},${coodinates1.y} A ${circleX},${circleY} 0 1,1 ${coodinates2.x},${coodinates2.y} L ${circleX},${circleY} Z`}
-              fill={"red"}
+              fill={"#A1DF97"}
             />
             <defs>
               <clipPath id="clip">
@@ -49,7 +49,7 @@ const DailyTaskCard = React.forwardRef(
           >
             <path
               d={`M ${circleX},${circleY} L ${coodinates1.x},${coodinates1.y} A ${circleX},${circleY} 0 1,1 ${coodinates2.x},${coodinates2.y} L ${circleX},${circleY} Z`}
-              fill={"red"}
+              fill={"#A1DF97"}
             />
             <defs>
               <clipPath id="clip">

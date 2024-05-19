@@ -1,14 +1,19 @@
-import { Calendar, Modal } from "antd";
+import { Button, Calendar, Card, Modal } from "antd";
 import React, { useEffect, useState } from "react";
 import { useGetReportsQuery } from "../api/reportApi";
 import { ReportList } from "../type/report";
 import { useGetUserListQuery } from "../api/userApi";
 import { User } from "../type/user";
 import { motion } from "framer-motion";
+import { themeColor } from "../constants/style.const";
+import UserImage from "../component/imagecontainer/UserImage";
+import { useNavigate } from "react-router-dom";
+import AppCard from "../component/card/AppCard";
 
 const ReportManagePage = () => {
   const circleR = 70;
   const maxHour = 8;
+  const navigate = useNavigate();
   const [selectedUser, setselectedUser] = useState<string | null>(null);
   const { data, isSuccess, isLoading } = useGetReportsQuery({
     user_id: selectedUser,
@@ -27,22 +32,13 @@ const ReportManagePage = () => {
   useEffect(() => {
     if (!isUserListSuccess) return;
     setuserList(userListData.data);
+    console.log(userListData.data);
   }, [userListData]);
 
-  const handleUserClick = (user_id: string) => {
-    setselectedUser(user_id);
+  const onUserClick = (user: User) => {
+    console.log(user);
+    navigate("/report/" + user.user_id);
   };
-
-  const handleReportClick = (i: number) => {
-    setisDetailModalOpen(true);
-    setReportDetail(dataSource[i]);
-  };
-
-  const handleModalCancel = () => {
-    setisDetailModalOpen(false);
-    setReportDetail(null);
-  };
-
   //utils
   function calculatePointCoordinates(value: number) {
     const radius = circleR;
@@ -55,68 +51,73 @@ const ReportManagePage = () => {
   }
 
   return (
-    <div className="flex w-full h-full ">
-      <div className="w-[20%] bg-blue-200">
-        <div className="w-full h-[50%] overflow-auto">
-          {userList.length &&
-            userList.map((user, i) => (
-              <motion.div
-                whileHover={{ translateX: 10 }}
-                whileTap={{ scale: 1.2 }}
-                onTap={() => handleUserClick(user.user_id)}
-                className="flex h-[50px] rounded bg-cyan-200 mt-5"
-                key={"usernode-" + i}
-              >
-                <div>{user.user_name}</div>
-                <img className={user.img}></img>
-              </motion.div>
-            ))}
+    <div className=" relative flex w-full h-full items-center ">
+      <div className="w-full h-[88%] flex justify-around items-center">
+        <Card
+          style={{
+            backgroundColor: themeColor.cardBg,
+            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
+          }}
+          className="w-[47%]"
+        >
+          <div className="h-[20%]">
+            <div className="flex justify-between">
+              <div style={{ fontSize: "1rem" }}>ユーザー一覧</div>
+              <Button style={{ border: "2px #88A589 solid", color: "#88A589" }}>
+                フィルター
+              </Button>
+            </div>
+            <div className="overflow-scroll h-[400px]">
+              {!!userList.length &&
+                userList.map((user, i) => {
+                  return (
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      key={"userlist-" + i}
+                      className="flex justify-center"
+                      onTap={() => onUserClick(user)}
+                    >
+                      <AppCard
+                        key={"userlist-" + i}
+                        className="mt-3 h-[50px] w-[98%] flex items-center"
+                      >
+                        <div className="flex items-center">
+                          <UserImage
+                            name={user.user_name}
+                            src={user.img}
+                            width={30}
+                            height={30}
+                          ></UserImage>
+                          <div className="ml-4">{user.user_name}</div>
+                        </div>
+                      </AppCard>
+                    </motion.div>
+                  );
+                })}
+            </div>
+          </div>
+        </Card>
+        <div className="w-[47%] h-full flex flex-col justify-between">
+          <AppCard
+            style={{
+              backgroundColor: themeColor.cardBg,
+              height: "47%",
+              width: "100%",
+            }}
+          >
+            nanika
+          </AppCard>
+          <AppCard
+            style={{
+              backgroundColor: themeColor.cardBg,
+              height: "47%",
+              width: "100%",
+            }}
+          >
+            nanika
+          </AppCard>
         </div>
-        <div className="w-full h-[50%]"></div>
       </div>
-      <div className="overflow-auto flex flex-wrap w-[80%] bg-red-100">
-        {dataSource &&
-          dataSource.map((data, i) => {
-            return (
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onTap={() => handleReportClick(i)}
-                className="w-[200px] h-[200px] ml-5 mt-5 bg-red-300 flex justify-center items-center"
-                key={"reportlist" + i}
-              >
-                <svg
-                  width="100%"
-                  height="100%"
-                  viewBox={`0 0 ${circleR * 2} ${circleR * 2}`}
-                  className="flex justify-center items-center"
-                >
-                  <circle cx={circleR} cy={circleR} r={circleR} fill="red" />
-                  {data.dailytasks.length &&
-                    data.dailytasks.map((dailytask, j) => {
-                      const { x: startX, y: startY } =
-                        calculatePointCoordinates(dailytask.starttime);
-                      const { x: endX, y: endY } = calculatePointCoordinates(
-                        dailytask.endtime
-                      );
-
-                      return (
-                        <g key={j}>
-                          <path
-                            d={`M ${circleR},${circleR} L ${startX},${startY} A ${circleR},${circleR} 0 0,1 ${endX},${endY} Z`}
-                            fill="rgba(0, 0, 0, 0.5)"
-                          />
-                        </g>
-                      );
-                    })}
-                </svg>
-              </motion.div>
-            );
-          })}
-      </div>
-      <Modal open={isDetailModalOpen} onCancel={handleModalCancel}>
-        <div>{ReportDetail?.report.date}</div>
-      </Modal>
     </div>
   );
 };

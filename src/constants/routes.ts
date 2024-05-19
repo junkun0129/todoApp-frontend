@@ -21,6 +21,9 @@ export const appRoute = {
   userContact: "/user/contact",
   userList: "/user/list",
 
+  //report
+  reportUserDetail: "/report/:userId",
+
   //task
   taskManage: "/task/manage",
 };

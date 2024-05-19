@@ -14,3 +14,28 @@ export const getReportTimestamp = () => {
 
   return formattedDate;
 };
+
+export const getUserColor = (name: string) => {
+  const length = name.length;
+  if (length < 5) {
+    return "red";
+  }
+  switch (length) {
+    case 6:
+      return "blue";
+    case 7:
+      return "green";
+    case 8:
+      return "yellow";
+    case 9:
+      return "black";
+    case 10:
+      return "gray";
+    case 11:
+      return "skyblue";
+    case 12:
+      return "purple";
+    default:
+      return "green";
+  }
+};

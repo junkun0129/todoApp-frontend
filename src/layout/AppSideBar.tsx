@@ -3,7 +3,7 @@ import Sider from "antd/es/layout/Sider";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { appRoute } from "../constants/routes";
-
+import { themeColor } from "../constants/style.const";
 const AppSideBar = () => {
   type MenuItem = Required<MenuProps>["items"][number];
   const items: MenuItem[] = [
@@ -78,7 +78,7 @@ const AppSideBar = () => {
   }, [location]);
   return (
     <Sider
-      style={{ backgroundColor: "lightcoral" }}
+      style={{ backgroundColor: themeColor.layoutBg }}
       className={`h-full`}
       trigger={null}
       collapsible

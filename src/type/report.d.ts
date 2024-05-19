@@ -6,7 +6,12 @@ export type ReportList = {
 };
 export type CreateReportReq = {
   body: {
-    date: string;
+    report: {
+      date: string;
+      category: string;
+      status: string;
+      hours: number;
+    };
     dailyTasks: DailyTask[];
   };
 };

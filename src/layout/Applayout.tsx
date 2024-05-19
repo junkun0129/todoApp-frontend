@@ -4,8 +4,9 @@ import { Outlet } from "react-router-dom";
 import AppHeader from "./AppHeader";
 import AppSideBar from "./AppSideBar";
 import { useAppSelector } from "../store/store";
-import { appStyle } from "../constants/style.const";
+import { appStyle, themeColor } from "../constants/style.const";
 import { useEffect } from "react";
+import BackIcon from "../component/svg/BackIcon";
 
 const AppLayout = () => {
   const { screenSize } = useAppSelector(
@@ -17,9 +18,15 @@ const AppLayout = () => {
       <div className="w-full h-full">
         <AppHeader />
         <Content
-          className={` bg-red-50 w-full `}
-          style={{ height: screenSize.y - appStyle.headerHeight }}
+          className={`w-full relative`}
+          style={{
+            height: screenSize.y - appStyle.headerHeight,
+            backgroundColor: themeColor.contentBg,
+          }}
         >
+          <div style={{ zIndex: "10px" }} className="absolute">
+            <BackIcon />
+          </div>
           <Outlet />
         </Content>
       </div>

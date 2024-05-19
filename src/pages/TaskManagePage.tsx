@@ -135,7 +135,7 @@ const TaskManagePage = () => {
     });
   };
   return (
-    <div className=" w-full h-full ">
+    <div className=" relative">
       <Button onClick={() => setcreateModalOpen(true)}>タスク作成</Button>
       {/* <DndContext
         sensors={sensors}
