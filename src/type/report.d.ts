@@ -1,7 +1,21 @@
 import { Result, VoidResponse } from "./common";
+export type Report = {
+  report_id: string;
+  user_id: string;
+  created_at: string;
+  date: string;
+  status: "rest" | "plan";
+  hours: number;
+  category: string;
+};
 
+export type PairedReportList = {
+  date: string;
+  plan: ReportList | null;
+  result: ReportList | null;
+};
 export type ReportList = {
-  report: { date: string };
+  report: Report;
   dailytasks: DailyTask[];
 };
 export type CreateReportReq = {
@@ -32,5 +46,5 @@ export type GetReportsReq = {
 
 export type GetReportRes = {
   result: Result;
-  data: ReportList[];
+  data: PairedReportList[];
 };

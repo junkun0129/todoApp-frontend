@@ -15,20 +15,14 @@ const ReportManagePage = () => {
   const maxHour = 8;
   const navigate = useNavigate();
   const [selectedUser, setselectedUser] = useState<string | null>(null);
-  const { data, isSuccess, isLoading } = useGetReportsQuery({
-    user_id: selectedUser,
-  });
+
   const [ReportDetail, setReportDetail] = useState<ReportList | null>(null);
   const [isDetailModalOpen, setisDetailModalOpen] = useState<boolean>(false);
   const [userList, setuserList] = useState<User[]>([]);
   const { data: userListData, isSuccess: isUserListSuccess } =
     useGetUserListQuery();
   const [dataSource, setdataSource] = useState<ReportList[]>([]);
-  useEffect(() => {
-    if (!isSuccess) return;
-    console.log(data);
-    setdataSource(data.data);
-  }, [data]);
+
   useEffect(() => {
     if (!isUserListSuccess) return;
     setuserList(userListData.data);
