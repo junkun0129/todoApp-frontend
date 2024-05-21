@@ -7,11 +7,13 @@ const UserImage = ({
   src,
   width,
   height,
+  className,
 }: {
   name: string;
   src: string;
   width: number;
   height: number;
+  className?: string;
 }) => {
   const [hasError, setHasError] = useState(false);
 
@@ -35,7 +37,12 @@ const UserImage = ({
       {name[0]}
     </div>
   ) : (
-    <img src={src} onError={handleError} />
+    <img
+      className={className}
+      style={{ borderRadius: "100px" }}
+      src={src}
+      onError={handleError}
+    />
   );
 };
 

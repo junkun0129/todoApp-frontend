@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQuery, baseQueryWithReauth } from "./appApi";
 import { UpdateProfileRequest, UpdateProfileResponse } from "../type/api/user";
-import { GetUserListRes } from "../type/user";
+import { GetUserListRes, GetUserProfileRes } from "../type/user";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -17,12 +17,12 @@ export const userApi = createApi({
         body,
       }),
     }),
-    getProfile: builder.query<any, string>({
-      query: (email) => ({
+    getProfile: builder.query<GetUserProfileRes, string>({
+      query: (user_id) => ({
         url: `/user/get`,
         method: "POST",
         body: {
-          email,
+          user_id,
         },
       }),
     }),

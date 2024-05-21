@@ -8,3 +8,7 @@ export type User = {
 export type GetUserListRes = {
   data: User[];
 };
+
+export type GetUserProfileRes = {
+  data: User;
+};
