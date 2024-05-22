@@ -27,6 +27,7 @@ import TextArea from "antd/es/input/TextArea";
 import { useCreateTaskMutation, useGetTaskListQuery } from "../api/taskApi";
 import { CreateTaskReq, CreateTaskRes, TaskStatus } from "../type/task";
 import TaskPanel from "../component/panel/TaskPanel";
+import useDnd from "../hooks/useDnd";
 export type DNDItem = {
   task_id: UniqueIdentifier;
   title: string;
@@ -66,11 +67,7 @@ const dataContainer: DNDType[] = [
 ];
 const TaskManagePage = () => {
   const [containers, setContainers] = useState<DNDType[]>(dataContainer);
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [currentContainerId, setCurrentContainerId] =
-    useState<UniqueIdentifier>();
-  const [containerName, setContainerName] = useState("");
-  const [itemName, setItemName] = useState("");
+  useState<UniqueIdentifier>();
   const [createModalOpen, setcreateModalOpen] = useState<boolean>(false);
   const { data, isSuccess, refetch } = useGetTaskListQuery();
   const [createTaskMutation] = useCreateTaskMutation();
@@ -115,56 +112,9 @@ const TaskManagePage = () => {
     };
   }, [data]);
 
-  useEffect(() => {
-    console.log(containers);
-  }, [containers]);
-
-  const handleCreate = (values) => {
-    const request: CreateTaskReq = {
-      body: values,
-    };
-
-    createTaskMutation(request).then((res: any) => {
-      if (res.error) {
-      } else {
-        const response = res.data as CreateTaskRes;
-        message.success(response.result);
-        refetch();
-        setcreateModalOpen(false);
-      }
-    });
-  };
   return (
     <div className=" relative">
-      <Button onClick={() => setcreateModalOpen(true)}>タスク作成</Button>
-      {/* <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragMove={handleDragMove}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-      >
-        <div className=" w-full h-full flex justify-around items-center">
-          {containers.map((container, i) => {
-            return (
-              <Container key={container.id} container={container}></Container>
-            );
-          })}
-        </div>
-      </DndContext> */}
       <TaskPanel dataSource={containers}></TaskPanel>
-      <Modal open={createModalOpen} onCancel={() => setcreateModalOpen(false)}>
-        <Form onFinish={handleCreate}>
-          <Form.Item label={"title"} name={"title"}>
-            <Input />
-          </Form.Item>
-          <Form.Item label={"body"} name={"body"}>
-            <TextArea />
-          </Form.Item>
-          <Button htmlType="submit">create</Button>
-        </Form>
-      </Modal>
     </div>
   );
 };

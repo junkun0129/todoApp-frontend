@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 // DnD
@@ -50,7 +50,10 @@ export default function TaskPanel({ dataSource }) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [currentContainerId, setCurrentContainerId] =
     useState<UniqueIdentifier>();
+  const [selectedCategory, setselectedCategory] = useState<string | null>(null);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const taskBodyRef = useRef<string | null>(null);
+  const taskTitleRef = useRef<string | null>(null);
   const [updateStatAndOrderMutation] = useChangeStatusAndOrderMutation();
   const [itemEditModalOpen, setitemEditModalOpen] = useState<boolean>(false);
   const [selectedItemId, setselectedItemId] = useState<string | null>(null);
@@ -59,16 +62,10 @@ export default function TaskPanel({ dataSource }) {
   const [updateTaskMutation] = useUpdateTaskMutation();
   // Find the value of the items
   function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
-    console.log("object");
     if (type === "container") {
       return containers.find((item) => item.id === id);
     }
     if (type === "item") {
-      console.log(
-        containers.find((container) =>
-          container.items.find((item) => item.task_id === id)
-        )
-      );
       return containers.find((container) =>
         container.items.find((item) => item.task_id === id)
       );
@@ -358,6 +355,26 @@ export default function TaskPanel({ dataSource }) {
     const response: any = await updateTaskMutation(request);
     const data: UpdateTaskRes = response.data;
   };
+
+  const handleCancelAddModal = () => {
+    setselectedCategory(null);
+    setShowAddItemModal(false);
+    taskBodyRef.current = null;
+    taskTitleRef.current = null;
+  };
+
+  const handleCreateTask = () => {
+    const title = taskTitleRef.current;
+    const body = taskBodyRef.current;
+    if (!title || !body || !selectedCategory) return;
+    //ここで使う
+    handleCancelAddModal();
+  };
+
+  const onClickAddButton = (category: string) => {
+    setselectedCategory(category);
+    setShowAddItemModal(true);
+  };
   return (
     <div className="mx-auto max-w-7xl">
       {/* Add Container Modal */}
@@ -383,7 +400,7 @@ export default function TaskPanel({ dataSource }) {
         )}
       </Modal>
       <div className="">
-        <div className="grid grid-cols-3 gap-6">
+        <div className="flex">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
@@ -397,10 +414,7 @@ export default function TaskPanel({ dataSource }) {
                   id={container.id}
                   title={container.title}
                   key={container.id}
-                  onAddItem={() => {
-                    setShowAddItemModal(true);
-                    setCurrentContainerId(container.id);
-                  }}
+                  onAddItem={() => onClickAddButton(container.status_type)}
                 >
                   <SortableContext
                     items={container.items.map((i) => i.task_id)}
@@ -436,6 +450,22 @@ export default function TaskPanel({ dataSource }) {
           </DndContext>
         </div>
       </div>
+      <Modal
+        title={"タスクの作成"}
+        destroyOnClose
+        open={showAddItemModal}
+        onOk={handleCreateTask}
+        onCancel={handleCancelAddModal}
+      >
+        <div className="">
+          <div>タイトル:</div>
+          <Input />
+        </div>
+        <div className="">
+          <div>説明:</div>
+          <TextArea />
+        </div>
+      </Modal>
     </div>
   );
 }

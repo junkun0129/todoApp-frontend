@@ -30,10 +30,12 @@ const Items = ({ id, title, onClick }: ItemsType) => {
       {...attributes}
       style={{
         transition,
+        boxShadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
+
         transform: CSS.Translate.toString(transform),
       }}
       className={clsx(
-        "px-2 py-4 bg-white shadow-md rounded-xl w-full border border-transparent hover:border-gray-200 cursor-pointer",
+        "px-2 py-4 bg-white rounded-xl w-full border border-transparent hover:border-gray-200 cursor-pointer",
         isDragging && "opacity-50"
       )}
       onClick={onClick}
