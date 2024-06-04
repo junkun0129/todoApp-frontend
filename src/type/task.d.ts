@@ -9,6 +9,14 @@ export type TaskList = {
   status: TaskStatus;
   task_order: number;
 };
+
+export type TaskComment = {
+  taskcomment_id: string;
+  body: string;
+  img: string;
+  user_name: string;
+  created_at: string;
+};
 export type TaskDetail = {
   task_id: string;
   title: string;
@@ -17,6 +25,7 @@ export type TaskDetail = {
   user_name: string;
   img: string;
   status: string;
+  comments: TaskComment[];
 };
 
 export type GetTaskListReq = {
@@ -43,6 +52,7 @@ export type CreateTaskReq = {
   body: {
     title: string;
     body: string;
+    status: string;
   };
 };
 export type CreateTaskRes = VoidResponse;
@@ -68,3 +78,12 @@ export type ChangeStatusAndOrderBody = {
   status: string;
 };
 export type ChangeStatusAndOrderRes = VoidResponse;
+
+export type CreateTaskCommentReq = {
+  body: {
+    user_id: string;
+    task_id: string;
+    body: string;
+  };
+};
+export type CreateTaskCommentRes = {};

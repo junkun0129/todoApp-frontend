@@ -28,6 +28,8 @@ import { useCreateTaskMutation, useGetTaskListQuery } from "../api/taskApi";
 import { CreateTaskReq, CreateTaskRes, TaskStatus } from "../type/task";
 import TaskPanel from "../component/panel/TaskPanel";
 import useDnd from "../hooks/useDnd";
+import AppCard from "../component/card/AppCard";
+import TaskManageHeader from "../component/header/TaskManageHeader";
 export type DNDItem = {
   task_id: UniqueIdentifier;
   title: string;
@@ -114,6 +116,17 @@ const TaskManagePage = () => {
 
   return (
     <div className=" relative">
+      <div className=" w-[100%] h-full ml-4 flex justify-between items-center">
+        <div className="flex items-center" style={{ fontSize: "2rem" }}>
+          <div>SimplePage</div>
+          <Button className="mt-3 ml-1" size="large">
+            V
+          </Button>
+        </div>
+        <div className="w-[50%] mr-9 mt-2">
+          <TaskManageHeader />
+        </div>
+      </div>
       <TaskPanel dataSource={containers}></TaskPanel>
     </div>
   );

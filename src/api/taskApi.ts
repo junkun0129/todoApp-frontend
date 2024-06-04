@@ -3,6 +3,8 @@ import { baseQuery, baseQueryWithReauth } from "./appApi";
 import {
   ChangeStatusAndOrderReq,
   ChangeStatusAndOrderRes,
+  CreateTaskCommentReq,
+  CreateTaskCommentRes,
   CreateTaskReq,
   CreateTaskRes,
   DeleteTaskReq,
@@ -62,6 +64,16 @@ export const taskApi = createApi({
         body,
       }),
     }),
+    createTaskComment: builder.mutation<
+      CreateTaskCommentRes,
+      CreateTaskCommentReq
+    >({
+      query: ({ body }) => ({
+        url: "/task/createcomment",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -72,4 +84,5 @@ export const {
   useUpdateTaskMutation,
   useDeleteTaskMutation,
   useChangeStatusAndOrderMutation,
+  useCreateTaskCommentMutation,
 } = taskApi;

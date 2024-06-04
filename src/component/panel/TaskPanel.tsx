@@ -26,6 +26,7 @@ import { DNDType } from "../../pages/TaskManagePage";
 import {
   ChangeStatusAndOrderBody,
   ChangeStatusAndOrderReq,
+  CreateTaskReq,
   GetTaskDetailReq,
   GetTaskDetailRes,
   TaskDetail,
@@ -34,11 +35,14 @@ import {
 } from "../../type/task";
 import {
   useChangeStatusAndOrderMutation,
+  useCreateTaskMutation,
   useGetTaskDetailMutation,
+  useGetTaskListQuery,
   useUpdateTaskMutation,
 } from "../../api/taskApi";
 import { Button, Form, Input, Modal } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import TaskDetailModal from "../modal/TaskDetailModal";
 
 // Components
 
@@ -52,14 +56,15 @@ export default function TaskPanel({ dataSource }) {
     useState<UniqueIdentifier>();
   const [selectedCategory, setselectedCategory] = useState<string | null>(null);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
-  const taskBodyRef = useRef<string | null>(null);
-  const taskTitleRef = useRef<string | null>(null);
+  const [taskTitle, settaskTitle] = useState<string | null>(null);
+  const [taskBody, settaskBody] = useState<string | null>(null);
   const [updateStatAndOrderMutation] = useChangeStatusAndOrderMutation();
   const [itemEditModalOpen, setitemEditModalOpen] = useState<boolean>(false);
-  const [selectedItemId, setselectedItemId] = useState<string | null>(null);
-  const [selectedDetail, setselectedDetail] = useState<TaskDetail | null>(null);
+  const [selectedTaskId, setselectedTaskId] = useState<string | null>(null);
   const [getTaskDetailMutation] = useGetTaskDetailMutation();
   const [updateTaskMutation] = useUpdateTaskMutation();
+  const { refetch } = useGetTaskListQuery();
+  const [createTaskMutation] = useCreateTaskMutation();
   // Find the value of the items
   function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
     if (type === "container") {
@@ -215,7 +220,7 @@ export default function TaskPanel({ dataSource }) {
     const body: ChangeStatusAndOrderBody = {
       order: oneBeforeItem ? oneBeforeItem.task_order + 1 : 1,
       task_id: active.id as string,
-      status: container.title,
+      status: container.status_type,
     };
     return body;
   }
@@ -241,7 +246,6 @@ export default function TaskPanel({ dataSource }) {
       const activeContainer = findValueOfItems(active.id, "item");
       const overContainer = findValueOfItems(over.id, "item");
       // If the active or over container is not found, return
-      console.log(activeContainer, OverconstrainedError);
       if (!activeContainer || !overContainer) return;
       const activeContainerIndex = containers.findIndex(
         (container) => container.id === activeContainer.id
@@ -290,7 +294,6 @@ export default function TaskPanel({ dataSource }) {
       over?.id.toString().includes("container") &&
       active.id !== over.id
     ) {
-      console.log("object");
       const activeContainer = findValueOfItems(active.id, "item");
       const overContainer = findValueOfItems(over.id, "container");
       // If the active or over container is not found, return
@@ -323,51 +326,36 @@ export default function TaskPanel({ dataSource }) {
 
   // Container Component の追加も検討
   const onItemClick = async (id: string) => {
-    const request: GetTaskDetailReq = {
-      body: {
-        task_id: id,
-      },
-    };
-    const response: any = await getTaskDetailMutation(request);
-    const data: GetTaskDetailRes = response.data;
-    if (data.result === "failed") return;
-    setselectedDetail(data.data);
     setitemEditModalOpen(true);
+    setselectedTaskId(id);
   };
   const onCloseItemDetail = () => {
-    setselectedDetail(null);
+    setselectedTaskId(null);
     setitemEditModalOpen(false);
-  };
-  const handleUpdateDetail = async (values: Record<string, any>) => {
-    console.log(values);
-    if (!selectedDetail) return;
-    if (!values) return;
-    const { task_id, status } = selectedDetail;
-    const request: UpdateTaskReq = {
-      body: {
-        task_id,
-        title: values.title,
-        body: values.body,
-        status,
-      },
-    };
-
-    const response: any = await updateTaskMutation(request);
-    const data: UpdateTaskRes = response.data;
   };
 
   const handleCancelAddModal = () => {
     setselectedCategory(null);
     setShowAddItemModal(false);
-    taskBodyRef.current = null;
-    taskTitleRef.current = null;
+    settaskTitle(null);
+    settaskBody(null);
   };
 
-  const handleCreateTask = () => {
-    const title = taskTitleRef.current;
-    const body = taskBodyRef.current;
+  const handleCreateTask = async () => {
+    console.log("object");
+    const title = taskTitle;
+    const body = taskBody;
     if (!title || !body || !selectedCategory) return;
     //ここで使う
+    const request: CreateTaskReq = {
+      body: {
+        title,
+        body,
+        status: selectedCategory,
+      },
+    };
+    const response = await createTaskMutation(request);
+    refetch();
     handleCancelAddModal();
   };
 
@@ -380,25 +368,14 @@ export default function TaskPanel({ dataSource }) {
       {/* Add Container Modal */}
 
       {/* Add Item Modal */}
-      <Modal
-        destroyOnClose
-        open={itemEditModalOpen}
-        onCancel={onCloseItemDetail}
-      >
-        {selectedDetail ? (
-          <Form onFinish={handleUpdateDetail}>
-            <Form.Item label={"title"} name={"title"}>
-              <Input value={selectedDetail.title} />
-            </Form.Item>
-            <Form.Item label={"body"} name={"body"}>
-              <TextArea value={selectedDetail.body} />
-            </Form.Item>
-            <Button htmlType="submit"></Button>
-          </Form>
-        ) : (
-          <div>no contant</div>
-        )}
-      </Modal>
+
+      {!!selectedTaskId && (
+        <TaskDetailModal
+          ModalProps={{ open: itemEditModalOpen, onCancel: onCloseItemDetail }}
+          selectedTaskId={selectedTaskId}
+        />
+      )}
+
       <div className="">
         <div className="flex">
           <DndContext
@@ -459,11 +436,17 @@ export default function TaskPanel({ dataSource }) {
       >
         <div className="">
           <div>タイトル:</div>
-          <Input />
+          <Input
+            value={taskTitle}
+            onChange={(e) => settaskTitle(e.target.value)}
+          />
         </div>
         <div className="">
           <div>説明:</div>
-          <TextArea />
+          <TextArea
+            value={taskBody}
+            onChange={(e) => settaskBody(e.target.value)}
+          />
         </div>
       </Modal>
     </div>

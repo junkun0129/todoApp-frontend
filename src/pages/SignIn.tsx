@@ -36,6 +36,7 @@ const SignIn = () => {
       if (res.error) {
       } else {
         const response = res.data;
+        console.log(response);
         dispatch(setUser(response.data.user));
         dispatch(setToken(response.data.token));
         navigate("/");
