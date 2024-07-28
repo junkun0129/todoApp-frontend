@@ -1,6 +1,6 @@
 import { Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import AppHeader from "./AppHeader";
 import AppSideBar from "./AppSideBar";
 import { useAppSelector } from "../store/store";
@@ -12,6 +12,18 @@ const AppLayout = () => {
   const { screenSize } = useAppSelector(
     (state) => state.persistedReducer.AppReducer
   );
+  const { token } = useAppSelector(
+    (state) => state.persistedReducer.AuthReducer
+  );
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token === null) {
+      console.log(token, "tokennn");
+      navigate("/signin");
+    }
+  }, [token]);
+
   return (
     <Layout className="w-[100vw] h-[100vh] flex">
       <AppSideBar />

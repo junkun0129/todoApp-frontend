@@ -2,7 +2,7 @@ import { Button, Checkbox, Form, Input, message } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { persistor, useAppDispatch, useAppSelector } from "../store/store";
-import { setIsAuth, setToken } from "../slice/authSlice";
+import { setToken } from "../slice/authSlice";
 import { motion } from "framer-motion";
 import Logo from "../component/svg/Logo";
 import { setUser } from "../slice/userSlice";
@@ -15,14 +15,17 @@ const SignIn = () => {
   const navigate = useNavigate();
   const [isStayLoggedIn, setisStayLoggedIn] = useState<boolean>(false);
   const [signinMutation] = useSigninMutation();
-  const { token } = useAppSelector(
+  const { token: sliceToken } = useAppSelector(
     (state) => state.persistedReducer.AuthReducer
   );
+  const [token, settoken] = useState<string | null>(null);
   useEffect(() => {
-    if (token) {
-      dispatch(setIsAuth(true));
+    if (token !== null && sliceToken !== null) {
+      console.log(token, "token");
+      console.log(sliceToken, "sliceToken");
+      navigate("/");
     }
-  }, [token]);
+  }, [token, sliceToken]);
 
   const handleSubmit = (values: Record<string, any>) => {
     const request: SignInReq = {
@@ -39,7 +42,7 @@ const SignIn = () => {
         console.log(response);
         dispatch(setUser(response.data.user));
         dispatch(setToken(response.data.token));
-        navigate("/");
+        settoken(response.data.token);
       }
     });
   };

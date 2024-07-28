@@ -9,7 +9,7 @@ export const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).persistedReducer.AuthReducer.token;
-    
+
     if (token !== "") {
       headers.set("authorization", `Bearer ${token}`);
     }
@@ -27,6 +27,7 @@ export const baseQueryWithReauth: (baseQuery: BaseQueryType) => BaseQueryType =
     if (result.error && result.error.status === 401) {
       // 401 Unauthorized
       // console.log('Unauthorized :>> ', result);
+      console.log("tokenなかったよ");
       api.dispatch(setLogout());
       // api.dispatch(setForceRedirectLocation(''));
     }

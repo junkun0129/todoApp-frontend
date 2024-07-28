@@ -51,3 +51,37 @@ export const getUserColor = (name: string) => {
       return "green";
   }
 };
+
+export function findCircleSliceIndex(
+  centerX: number,
+  centerY: number,
+  pointX: number,
+  pointY: number,
+  radius: number,
+  slices: number
+) {
+  // 与えられた座標が円の中心となるように平行移動します
+  const translatedPointX = pointX - centerX;
+  const translatedPointY = pointY - centerY;
+
+  // 与えられた座標の距離を計算します
+  const distanceSquared = translatedPointX ** 2 + translatedPointY ** 2;
+
+  // 与えられた座標が円の外にある場合は false を返します
+  if (distanceSquared > radius ** 2) {
+    return null;
+  }
+
+  // 与えられた座標の角度を計算します
+  let angle =
+    Math.atan2(translatedPointY, translatedPointX) * (180 / Math.PI) + 90;
+  if (angle < 0) {
+    angle += 360; // 角度を正規化します
+  }
+
+  // 与えられた座標が円をX等分したときの何スライス目にあるかを計算します
+  const sliceSize = 360 / slices;
+  const sliceIndex = Math.floor(angle / sliceSize);
+
+  return sliceIndex;
+}

@@ -61,7 +61,6 @@ export default function TaskPanel({ dataSource }) {
   const [updateStatAndOrderMutation] = useChangeStatusAndOrderMutation();
   const [itemEditModalOpen, setitemEditModalOpen] = useState<boolean>(false);
   const [selectedTaskId, setselectedTaskId] = useState<string | null>(null);
-  const [getTaskDetailMutation] = useGetTaskDetailMutation();
   const [updateTaskMutation] = useUpdateTaskMutation();
   const { refetch } = useGetTaskListQuery();
   const [createTaskMutation] = useCreateTaskMutation();

@@ -53,7 +53,7 @@ const Container = ({
       <AppCard bgColor="#F4F4F4">
         <div className="flex items-center justify-between">
           <div className="flex gap-y-1 items-center mb-4">
-            <h1 className="text-gray-800 text-xl mr-2">{title}</h1>
+            <h1 className="text-gray-800 text-xl mr-2 ">{title}</h1>
             <Button type="primary" size="small" onClick={onAddItem}>
               +
             </Button>
