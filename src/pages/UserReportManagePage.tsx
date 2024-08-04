@@ -14,7 +14,7 @@ import { Button } from "antd";
 const UserReportManagePage = () => {
   const { userId } = useParams();
   const [selectedUser, setselectedUser] = useState<User | null>(null);
-  const { data, isSuccess } = useGetReportsQuery({ user_id: userId });
+  const { data, isSuccess } = useGetReportsQuery({ category: "", date: "" });
   const { data: userData, isSuccess: getUserIsSuccess } =
     useGetProfileQuery(userId);
   const [reportList, setreportList] = useState<PairedReportList[]>([]);

@@ -43,6 +43,12 @@ export type ReportInfo = {
   genre: string | null;
   date: string | null;
 };
+
+export type OverLayIndex = {
+  index: number;
+  coordinate1: { x: number; y: number };
+  coordinate2: { x: number; y: number };
+} | null;
 const ReportCreate = () => {
   const [taskItems, settaskItems] = useState<TaskList[]>([]);
   const [extraMemos, setextraMemos] = useState<ExtraMemo[]>([]);
@@ -51,7 +57,9 @@ const ReportCreate = () => {
   const circleWidth = 320;
   const circleHeight = 320;
   const circleRef = useRef<SVGCircleElement>();
+  const taskPanelRef = useRef<HTMLDivElement>();
   const [modalDetail, setmodalDetail] = useState<DetailedTask | null>(null);
+  const [isReportEdible, setisReportEdible] = useState<boolean>(true);
   const [defaultDailyTasks, setdefaultDailyTasks] = useState<
     DefaultDailyTask[]
   >([
@@ -65,11 +73,7 @@ const ReportCreate = () => {
     date: null,
     status: null,
   });
-  const [dragOverlayIndex, setdragOverlayIndex] = useState<{
-    index: number;
-    coordinate1: { x: number; y: number };
-    coordinate2: { x: number; y: number };
-  } | null>(null);
+  const [dragOverlayIndex, setdragOverlayIndex] = useState<OverLayIndex>(null);
   const [createReportMutation] = useCreateReportMutation();
   const { data: taskListData, isSuccess } = useGetTaskListQuery();
 
@@ -88,6 +92,7 @@ const ReportCreate = () => {
   const handleDragStart = (i: number) => {
     setdraggingIndex(i);
   };
+
   const handleDragEnd = (
     event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
@@ -96,39 +101,81 @@ const ReportCreate = () => {
     const { point } = info;
 
     const dropLocation = findDropLocation(point.x, point.y);
-    const original1 = pointers[circleIndex];
-    const original2 = pointers[circleIndex + 1];
-    //元々あった場所にドロップされた場合
-    if (original1.value <= dropLocation && dropLocation <= original2.value) {
+    if (dropLocation) {
+      const original1 = pointers[circleIndex];
+      const original2 = pointers[circleIndex + 1];
+      //元々あった場所にドロップされた場合
+      if (
+        original1.value === dropLocation &&
+        original2.value === dropLocation + 1
+      ) {
+      } else {
+        let newPointers = pointers.filter(
+          (pointer, i) => i !== circleIndex && i !== circleIndex + 1
+        );
+
+        const coordinate1 = calculatePointCoordinates(dropLocation);
+        const coordinate2 = calculatePointCoordinates(dropLocation + 1);
+        newPointers = [
+          ...newPointers,
+          { ...original1, value: dropLocation, borderColor: coordinate1 },
+          { ...original2, value: dropLocation + 1, borderColor: coordinate2 },
+        ];
+
+        setpointers(newPointers);
+      }
     } else {
-      let newPointers = pointers.filter(
-        (pointer, i) => i !== circleIndex && i !== circleIndex + 1
+      if (!taskPanelRef.current) return;
+      const taskList = pointers[circleIndex].bgColor;
+      const { left, right, top } = taskPanelRef.current.getBoundingClientRect();
+      const isInPanel = left < point.x && point.x < right && point.y > top;
+      if (!isInPanel) return;
+      const newTaskList: TaskList[] = taskItems.filter(
+        (taskitem) => taskitem.task_id !== "overlay"
       );
+      newTaskList.push(taskList);
 
-      const coordinate1 = calculatePointCoordinates(dropLocation);
-      const coordinate2 = calculatePointCoordinates(dropLocation + 1);
-      newPointers = [
-        ...newPointers,
-        { ...original1, value: dropLocation, borderColor: coordinate1 },
-        { ...original2, value: dropLocation + 1, borderColor: coordinate2 },
-      ];
-
+      settaskItems(newTaskList);
+      const newPointers = pointers.filter(
+        (pointer, i) => pointer.bgColor.task_id !== taskList.task_id
+      );
       setpointers(newPointers);
     }
     setdragOverlayIndex(null);
     setdraggingIndex(null);
   };
 
-  const handleDrag = (info: PanInfo) => {
+  const handleDrag = (info: PanInfo, i: number) => {
     const { point } = info;
-
     const dropLocation = findDropLocation(point.x, point.y);
+
     if (dropLocation) {
       const coordinate1 = calculatePointCoordinates(dropLocation);
       const coordinate2 = calculatePointCoordinates(dropLocation + 1);
       setdragOverlayIndex({ index: dropLocation, coordinate1, coordinate2 });
     } else {
       setdragOverlayIndex(null);
+      if (!taskPanelRef.current) return;
+      const taskList = pointers[i].bgColor;
+      const { left, right, top, bottom } =
+        taskPanelRef.current.getBoundingClientRect();
+      const isInPanel =
+        left < point.x && point.x < right && point.y > top && point.y < bottom;
+      console.log(isInPanel);
+      if (isInPanel) {
+        const taskIds = taskItems.map((item) => item.task_id);
+        if (taskIds.includes("overlay")) return;
+
+        const newTaskItem: TaskList = { ...taskList, task_id: "overlay" };
+        const newTaskItems: TaskList[] = [...taskItems, newTaskItem];
+        settaskItems(newTaskItems);
+      } else {
+        console.log("lkljkljjl");
+        const newTaskItems = taskItems.filter(
+          (taskitem) => taskitem.task_id !== "overlay"
+        );
+        settaskItems(newTaskItems);
+      }
     }
   };
 
@@ -140,10 +187,12 @@ const ReportCreate = () => {
     const { point } = info;
 
     const dropLocation = findDropLocation(point.x, point.y);
+    console.log(dropLocation, "dragend");
     if (!dropLocation) return;
     const overlaps = pointers.filter(
       (pointer) => pointer.value === dropLocation
     );
+
     if (!overlaps.length) {
       const coordinate1 = calculatePointCoordinates(dropLocation);
       const coordinate2 = calculatePointCoordinates(dropLocation + 1);
@@ -153,7 +202,10 @@ const ReportCreate = () => {
           borderColor: coordinate1,
           bgColor: taskList,
           bgColorDisabled: { result: "", improve: "" },
-          bgColorHover: { starttime: dropLocation, endtime: dropLocation + 1 },
+          bgColorHover: {
+            starttime: dropLocation,
+            endtime: dropLocation + 1,
+          },
           ariaLabel: "lskdlj",
         },
         {
@@ -161,7 +213,10 @@ const ReportCreate = () => {
           borderColor: coordinate2,
           bgColor: taskList,
           bgColorDisabled: { result: "", improve: "" },
-          bgColorHover: { starttime: dropLocation, endtime: dropLocation + 1 },
+          bgColorHover: {
+            starttime: dropLocation,
+            endtime: dropLocation + 1,
+          },
           ariaLabel: "lskdlj",
         },
       ];
@@ -170,9 +225,10 @@ const ReportCreate = () => {
       const newTaskItems = taskItems.filter((task, i) => i !== taskIndex);
       settaskItems(newTaskItems);
       setpointers(newPointers);
-      setdragOverlayIndex(null);
     } else {
     }
+
+    setdragOverlayIndex(null);
   };
 
   const handleTaskDrag = (info: PanInfo) => {
@@ -191,7 +247,7 @@ const ReportCreate = () => {
   const handleSubmit = async () => {
     let dailyTasks: DailyTask[] = [];
     const { status, date, genre, maxhour } = reportInfo;
-    if (!status || !date || genre) return;
+    if (!status || !date || !genre) return;
     pointers.map((pointer, i) => {
       if (i % 2 === 0) {
         const dailyTask: DailyTask = {
@@ -333,132 +389,141 @@ const ReportCreate = () => {
     });
     setpointers(newPointersWithCoordinates);
   }
-
+  useEffect(() => {
+    console.log(isReportEdible);
+  }, [isReportEdible]);
   return (
     <div className="overflow-auto relative w-full h-full">
       <CreateReportHeader
         reportInfo={reportInfo}
         setRePortInfo={setreportInfo}
+        setIsReportEdible={setisReportEdible}
       />
-      <div className=" relative ml-[100px] w-full flex items-center justify-center flex-col mt-10">
-        <svg
-          onMouseEnter={() => console.log("object")}
-          width={circleWidth}
-          height={circleHeight}
-          className="w-full h-[600px] relative "
-        >
-          {/* circle for masure */}
-          <motion.circle
-            ref={circleRef}
-            cx={circleWidth / 2}
-            cy={circleHeight / 2}
-            r={circleWidth / 2}
-            fill={"transparent"}
-          />
-          {/* task tab */}
-          <foreignObject width={"100%"} height={"60%"}>
-            <div className="w-[50%] h-full absolute right-[100px]  flex flex-col items-center">
-              <CreateReportTaskOption
-                defaultDailyTasks={defaultDailyTasks}
-                taskItems={taskItems}
-                onDrag={(event, info) => handleTaskDrag(info)}
-                onDragEnd={(info, task, index) =>
-                  handleTaskDragEnd(info, index, task)
-                }
-              />
-            </div>
-          </foreignObject>
-
-          {/* Round Circle */}
-          <foreignObject
-            // style={{ backgroundColor: "red" }}
-            width="50%"
-            height="60%"
+      {isReportEdible ? (
+        <div className=" relative ml-[100px] w-full flex items-center justify-center flex-col mt-10">
+          <svg
+            onMouseEnter={() => console.log("object")}
+            width={circleWidth}
+            height={circleHeight}
+            className="w-full h-[600px] relative "
           >
-            <div>
-              <RoundSlider
-                max={reportInfo.maxhour}
-                connectionBgColor="blue"
-                pathStartAngle={270}
-                pathEndAngle={269.999}
-                onChange={handleOnChange}
-                pointers={pointers}
-                pointersOverlap={false}
-                pathInnerBgColor="white"
-                hideConnection
-              ></RoundSlider>
-            </div>
-          </foreignObject>
-
-          {/* overlay slice whie dragging */}
-          {dragOverlayIndex && (
-            <OverLayCircleSliceSvg
-              circleWidth={circleWidth}
-              circleHeight={circleHeight}
-              coordinate1={dragOverlayIndex.coordinate1}
-              coordinate2={dragOverlayIndex.coordinate2}
+            {/* circle for masure */}
+            <motion.circle
+              ref={circleRef}
+              cx={circleWidth / 2}
+              cy={circleHeight / 2}
+              r={circleWidth / 2}
+              fill={"transparent"}
             />
-          )}
-
-          {/* rendering slices */}
-          {pointers.length >= 2 &&
-            pointers.map(
-              (pointer, i) =>
-                i % 2 === 0 && (
-                  <DailyTaskCard
-                    onClick={() => onDailyTaskCardClick(pointer.bgColor, i)}
-                    key={"dailytaskcard-" + i}
-                    drag
-                    dragSnapToOrigin
-                    onDrag={(event, info) => handleDrag(info)}
-                    onDragStart={() => handleDragStart(i)}
-                    onDragEnd={(event, info) => handleDragEnd(event, info, i)}
-                    circleX={circleWidth / 2}
-                    circleY={circleHeight / 2}
-                    coodinates1={pointers[i].borderColor}
-                    coodinates2={pointers[i + 1].borderColor}
-                    isDragging={
-                      draggingIndex !== null ? draggingIndex === i : false
-                    }
-                  />
-                )
-            )}
-        </svg>
-        {/* Extra Memo */}
-        <div className=" -mt-[230px] mb-10 w-[90%] mr-[200px] flex flex-col items-center">
-          {!!extraMemos.length &&
-            extraMemos.map((memo, i) => {
-              return (
-                <ReportExtraMemo
-                  key={i}
-                  onTilteChange={(e) => handleExtraTitleChange(e, i)}
-                  onBodyChange={(e) => handleExtraBodyChange(e, i)}
-                  onDelete={() => handleDeleteExtramemo(i)}
+            {/* task tab */}
+            <foreignObject width={"100%"} height={"60%"}>
+              <div className="w-[50%] h-full absolute right-[100px]  flex flex-col items-center">
+                <CreateReportTaskOption
+                  ref={taskPanelRef}
+                  defaultDailyTasks={defaultDailyTasks}
+                  taskItems={taskItems}
+                  onDrag={(event, info) => handleTaskDrag(info)}
+                  onDragEnd={(info, task, index) =>
+                    handleTaskDragEnd(info, index, task)
+                  }
                 />
-              );
-            })}
-          <Button
-            style={{ fontSize: "1.5rem" }}
-            type="primary"
-            className="w-full flex justify-center items-center"
-            onClick={onAddExtraMemo}
-          >
-            +
-          </Button>
-          <div className="w-full mt-5 flex justify-end">
-            <Button size="large" onClick={handleSubmit}>
-              提出
-            </Button>
-          </div>
-        </div>
+              </div>
+            </foreignObject>
 
-        {/* Detail Modal */}
-        <ReportCreateTaskDetailModal
-          DetailedTask={modalDetail}
-          setDetailedTask={setmodalDetail}
-          onSave={handleDetailedTaskModalSave}
-        />
-      </div>
+            {/* Round Circle */}
+            <foreignObject
+              // style={{ backgroundColor: "red" }}
+              width="50%"
+              height="60%"
+            >
+              <div>
+                <RoundSlider
+                  max={reportInfo.maxhour}
+                  connectionBgColor="blue"
+                  pathStartAngle={270}
+                  pathEndAngle={269.999}
+                  onChange={handleOnChange}
+                  pointers={pointers}
+                  pointersOverlap={false}
+                  pathInnerBgColor="white"
+                  hideConnection
+                ></RoundSlider>
+              </div>
+            </foreignObject>
+
+            {/* overlay slice whie dragging */}
+            {dragOverlayIndex && (
+              <OverLayCircleSliceSvg
+                circleWidth={circleWidth}
+                circleHeight={circleHeight}
+                coordinate1={dragOverlayIndex.coordinate1}
+                coordinate2={dragOverlayIndex.coordinate2}
+              />
+            )}
+
+            {/* rendering slices */}
+            {pointers.length >= 2 &&
+              pointers.map(
+                (pointer, i) =>
+                  i % 2 === 0 && (
+                    <DailyTaskCard
+                      onClick={() => onDailyTaskCardClick(pointer.bgColor, i)}
+                      key={`dailytaskcard-${pointer.bgColor.task_id}-${i}`}
+                      drag
+                      dragSnapToOrigin
+                      onDrag={(event, info) => handleDrag(info, i)}
+                      onDragEnd={(event, info) => handleDragEnd(event, info, i)}
+                      onDragStart={() => handleDragStart(i)}
+                      circleX={circleWidth / 2}
+                      circleY={circleHeight / 2}
+                      coodinates1={pointers[i].borderColor}
+                      coodinates2={pointers[i + 1].borderColor}
+                      isDragging={draggingIndex !== null}
+                      overlayIndex={dragOverlayIndex}
+                    />
+                  )
+              )}
+          </svg>
+          {/* Extra Memo */}
+          <div className=" -mt-[230px] mb-10 w-[90%] mr-[200px] flex flex-col items-center">
+            {!!extraMemos.length &&
+              extraMemos.map((memo, i) => {
+                return (
+                  <ReportExtraMemo
+                    key={i}
+                    onTilteChange={(e) => handleExtraTitleChange(e, i)}
+                    onBodyChange={(e) => handleExtraBodyChange(e, i)}
+                    onDelete={() => handleDeleteExtramemo(i)}
+                  />
+                );
+              })}
+            <Button
+              style={{ fontSize: "1.5rem" }}
+              type="primary"
+              className="w-full flex justify-center items-center"
+              onClick={onAddExtraMemo}
+            >
+              +
+            </Button>
+            <div className="w-full mt-5 flex justify-end">
+              <Button size="large" onClick={handleSubmit}>
+                提出
+              </Button>
+            </div>
+          </div>
+
+          {/* Detail Modal */}
+          <ReportCreateTaskDetailModal
+            DetailedTask={modalDetail}
+            setDetailedTask={setmodalDetail}
+            onSave={handleDetailedTaskModalSave}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center justify-center text-4xl w-full h-full -mt-10">
+          提出済みです。
+        </div>
+      )}
     </div>
   );
 };

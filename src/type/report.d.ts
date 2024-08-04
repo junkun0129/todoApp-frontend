@@ -41,10 +41,21 @@ export type DailyTask = {
 export type CreateReportRes = VoidResponse;
 
 export type GetReportsReq = {
-  user_id: string;
+  date: string;
+  category: string;
+};
+
+export type GetReportsRes = {
+  result: Result;
+  data: PairedReportList[];
+};
+
+export type GetReportReq = {
+  date: string;
+  category: string;
 };
 
 export type GetReportRes = {
   result: Result;
-  data: PairedReportList[];
+  data: any;
 };

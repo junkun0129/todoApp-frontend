@@ -4,8 +4,10 @@ import {} from "../type/api/task";
 import {
   CreateReportReq,
   CreateReportRes,
+  GetReportReq,
   GetReportRes,
   GetReportsReq,
+  GetReportsRes,
 } from "../type/report";
 
 export const reportApi = createApi({
@@ -22,10 +24,18 @@ export const reportApi = createApi({
         };
       },
     }),
-    getReports: builder.query<GetReportRes, GetReportsReq>({
-      query: ({ user_id }) => {
+    getReports: builder.query<GetReportsRes, GetReportsReq>({
+      query: ({ date = "", category = "" }) => {
         return {
-          url: `/report/list?user=${user_id}`,
+          url: `/report/list?&date=${date}&category=${category}`,
+          method: "GET",
+        };
+      },
+    }),
+    getReport: builder.mutation<GetReportRes, GetReportReq>({
+      query: ({ date = "", category = "" }) => {
+        return {
+          url: `/report/get?date=${date}&category=${category}`,
           method: "GET",
         };
       },
@@ -33,4 +43,8 @@ export const reportApi = createApi({
   }),
 });
 
-export const { useCreateReportMutation, useGetReportsQuery } = reportApi;
+export const {
+  useCreateReportMutation,
+  useGetReportsQuery,
+  useGetReportMutation,
+} = reportApi;

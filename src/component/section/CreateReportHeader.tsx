@@ -5,18 +5,26 @@ import {
   SegmentedProps,
   Select,
 } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import { ReportInfo } from "../../pages/ReportCreate";
+import { useGetReportMutation } from "../../api/reportApi";
+import { GetReportRes } from "../../type/report";
 type Props = {
   reportInfo: ReportInfo;
   setRePortInfo: (info: ReportInfo) => void;
+  setIsReportEdible: (edible: boolean) => void;
 };
-const CreateReportHeader = ({ reportInfo, setRePortInfo }: Props) => {
+const CreateReportHeader = ({
+  reportInfo,
+  setRePortInfo,
+  setIsReportEdible,
+}: Props) => {
   const { genre, maxhour, status, date } = reportInfo;
   const handleWorkHour = (value: number) => {
     const newReportInfo: ReportInfo = { ...reportInfo, maxhour: value };
     setRePortInfo(newReportInfo);
   };
+  const [getReport] = useGetReportMutation();
 
   const handleReportStatus = (value) => {
     const newReportInfo: ReportInfo = { ...reportInfo, status: value };
@@ -33,6 +41,18 @@ const CreateReportHeader = ({ reportInfo, setRePortInfo }: Props) => {
   const handleGenreChange: SegmentedProps["onChange"] = (value) => {
     const newReportInfo: ReportInfo = { ...reportInfo, genre: value as string };
     setRePortInfo(newReportInfo);
+  };
+
+  useEffect(() => {
+    checkIsEdible();
+  }, [reportInfo.date, reportInfo.genre]);
+
+  const checkIsEdible = async () => {
+    const res: any = await getReport({
+      category: reportInfo.genre,
+      date: reportInfo.date ?? "",
+    });
+    setIsReportEdible(!!!res.data.data.length);
   };
 
   return (
