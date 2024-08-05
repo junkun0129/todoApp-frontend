@@ -11,8 +11,8 @@ export const appRoute = {
   //content pages
   reportCreate: "/report/create",
   reportList: "/report/list",
+  myreport: "/report/myreport",
 
-  
   //attend pages
   attendCreate: "/attend/create",
   attendList: "/attend/list",

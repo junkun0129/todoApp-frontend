@@ -14,6 +14,7 @@ import EditProfilePage from "./pages/EditProfilePage";
 import ReportCreate from "./pages/ReportCreate";
 import TaskManagePage from "./pages/TaskManagePage";
 import UserReportManagePage from "./pages/UserReportManagePage";
+import MyReportPage from "./pages/MyReportPage";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -45,6 +46,7 @@ function App() {
               path={appRoute.reportCreate}
               element={<ReportCreate />}
             ></Route>
+            <Route path={appRoute.myreport} element={<MyReportPage />}></Route>
             <Route
               path={appRoute.reportList}
               element={<ReportManagePage />}

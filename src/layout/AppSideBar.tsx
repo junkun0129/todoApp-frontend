@@ -17,8 +17,12 @@ const AppSideBar = () => {
       label: "日報",
     },
     {
-      key: appRoute.reportCreate,
+      key: appRoute.myreport,
       label: "My日報",
+    },
+    {
+      key: appRoute.reportCreate,
+      label: "日報作成",
     },
     {
       key: appRoute.reportList,

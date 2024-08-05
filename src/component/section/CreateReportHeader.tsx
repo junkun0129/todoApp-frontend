@@ -5,19 +5,22 @@ import {
   SegmentedProps,
   Select,
 } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ReportInfo } from "../../pages/ReportCreate";
 import { useGetReportMutation } from "../../api/reportApi";
-import { GetReportRes } from "../../type/report";
 type Props = {
   reportInfo: ReportInfo;
   setRePortInfo: (info: ReportInfo) => void;
   setIsReportEdible: (edible: boolean) => void;
+  isDateSelected: boolean;
+  setIsDateSelected: (isSelected: boolean) => void;
 };
 const CreateReportHeader = ({
   reportInfo,
   setRePortInfo,
   setIsReportEdible,
+  isDateSelected,
+  setIsDateSelected,
 }: Props) => {
   const { genre, maxhour, status, date } = reportInfo;
   const handleWorkHour = (value: number) => {
@@ -25,7 +28,6 @@ const CreateReportHeader = ({
     setRePortInfo(newReportInfo);
   };
   const [getReport] = useGetReportMutation();
-
   const handleReportStatus = (value) => {
     const newReportInfo: ReportInfo = { ...reportInfo, status: value };
     setRePortInfo(newReportInfo);
@@ -35,6 +37,7 @@ const CreateReportHeader = ({
     if (!Array.isArray(datestring)) {
       const newReportInfo: ReportInfo = { ...reportInfo, date: datestring };
       setRePortInfo(newReportInfo);
+      setIsDateSelected(!!datestring);
     }
   };
 
@@ -67,6 +70,7 @@ const CreateReportHeader = ({
         </div>
         <div className="flex items-center">
           <Segmented
+            disabled={!isDateSelected}
             onChange={handleGenreChange}
             options={[
               { value: "plan", label: "計画" },
@@ -77,6 +81,7 @@ const CreateReportHeader = ({
         <div className="flex items-center">
           <div>就業時間:</div>
           <Select
+            disabled={!isDateSelected}
             options={[
               { value: 4, label: "4時間" },
               { value: 8, label: "8時間" },
@@ -88,6 +93,7 @@ const CreateReportHeader = ({
         <div className="flex items-center">
           <div>特別状態:</div>
           <Select
+            disabled={!isDateSelected}
             className="w-[100px]"
             options={[
               { value: "rest", label: "公欠" },

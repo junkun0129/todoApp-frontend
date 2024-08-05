@@ -4,15 +4,15 @@ import AppCard from "./AppCard";
 import ReportCircle from "../datadisplay/ReportCircle";
 type Props = {
   date: string;
-  result: ReportList;
-  plan: ReportList;
+  result: ReportList | null;
+  plan: ReportList | null;
 };
 const ReportReviewCard = ({ date, result, plan }: Props) => {
   const circleR = 100;
   const [year, month, day] = date.split("-");
   const formattedDate = `${year}年${month}月${day}日`;
-  const workdedHour = result.report.hours ? result.report.hours + "時間" : "--";
-  const specialOccation = result.report.status;
+  const workdedHour = result ? result.report.hours + "時間" : "--";
+  const specialOccation = result ? result.report.status : "-";
 
   return (
     <AppCard className="w-[49.5%] mb-6">
@@ -28,20 +28,24 @@ const ReportReviewCard = ({ date, result, plan }: Props) => {
             <div>予定進行率:{21}%</div>
           </div>
         </div>
-        <div className=" flex justify-around items-center mt-6 ml-10">
+        <div className=" flex justify-around items-center mt-6 ml-10 overscroll-auto">
           <div>
-            <ReportCircle
-              radius={circleR}
-              dailyTasks={plan.dailytasks}
-              maxHours={plan.report.hours}
-            />
+            {plan && (
+              <ReportCircle
+                radius={circleR}
+                dailyTasks={plan.dailytasks}
+                maxHours={plan.report.hours}
+              />
+            )}
           </div>
           <div>
-            <ReportCircle
-              radius={circleR}
-              dailyTasks={result.dailytasks}
-              maxHours={result.report.hours}
-            />
+            {result && (
+              <ReportCircle
+                radius={circleR}
+                dailyTasks={result.dailytasks}
+                maxHours={result.report.hours}
+              />
+            )}
           </div>
         </div>
       </div>

@@ -4,7 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import DailyTaskCard from "../component/card/DailyTaskCard";
 import { TaskList } from "../type/task";
 import { Button } from "antd";
-import { useCreateReportMutation } from "../api/reportApi";
+import {
+  useCreateReportMutation,
+  useGetReportMutation,
+} from "../api/reportApi";
 import { findCircleSliceIndex } from "../util/util";
 import { CreateReportReq, DailyTask } from "../type/report";
 import { useGetTaskListQuery } from "../api/taskApi";
@@ -69,14 +72,15 @@ const ReportCreate = () => {
   ]);
   const [reportInfo, setreportInfo] = useState<ReportInfo>({
     maxhour: 8,
-    genre: "計画",
+    genre: "plan",
     date: null,
     status: null,
   });
   const [dragOverlayIndex, setdragOverlayIndex] = useState<OverLayIndex>(null);
   const [createReportMutation] = useCreateReportMutation();
   const { data: taskListData, isSuccess } = useGetTaskListQuery();
-
+  const [isDateSelected, setIsDateSelected] = useState<boolean>(false);
+  const [getReport] = useGetReportMutation();
   useEffect(() => {
     if (!isSuccess) return;
     const newTaskList = taskListData.data.filter(
@@ -287,6 +291,7 @@ const ReportCreate = () => {
       },
     };
     const response = await createReportMutation(request);
+    checkIsEdible();
     console.log(response);
   };
 
@@ -389,17 +394,29 @@ const ReportCreate = () => {
     });
     setpointers(newPointersWithCoordinates);
   }
-  useEffect(() => {
-    console.log(isReportEdible);
-  }, [isReportEdible]);
+
+  const checkIsEdible = async () => {
+    const res: any = await getReport({
+      category: reportInfo.genre,
+      date: reportInfo.date ?? "",
+    });
+    setisReportEdible(!!!res.data.data.length);
+  };
+
   return (
     <div className="overflow-auto relative w-full h-full">
       <CreateReportHeader
         reportInfo={reportInfo}
         setRePortInfo={setreportInfo}
         setIsReportEdible={setisReportEdible}
+        isDateSelected={isDateSelected}
+        setIsDateSelected={setIsDateSelected}
       />
-      {isReportEdible ? (
+      {!isDateSelected ? (
+        <div className=" flex justify-center items-center text-4xl w-full h-full -mt-14">
+          日付を選択してください
+        </div>
+      ) : isReportEdible ? (
         <div className=" relative ml-[100px] w-full flex items-center justify-center flex-col mt-10">
           <svg
             onMouseEnter={() => console.log("object")}
