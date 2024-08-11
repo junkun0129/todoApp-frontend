@@ -1,5 +1,6 @@
 import React from "react";
 import { DailyTask } from "../../type/report";
+import { motion, motionValue } from "framer-motion";
 type Props = {
   radius: number;
   dailyTasks: DailyTask[];
@@ -7,6 +8,7 @@ type Props = {
 };
 const ReportCircle = ({ radius, dailyTasks, maxHours }: Props) => {
   //utils
+
   function calculatePointCoordinates(value: number) {
     const centerX = radius;
     const centerY = radius;
@@ -22,7 +24,12 @@ const ReportCircle = ({ radius, dailyTasks, maxHours }: Props) => {
       viewBox={`0 0 ${radius * 2} ${radius * 2}`}
       className="flex justify-center items-center"
     >
-      <circle cx={radius} cy={radius} r={radius} fill="rgba(0, 0, 0, 0.1)" />
+      <motion.circle
+        cx={radius}
+        cy={radius}
+        r={radius}
+        fill="rgba(0, 0, 0, 0.1)"
+      />
       {dailyTasks.length &&
         dailyTasks.map((dailytask, j) => {
           const { x: startX, y: startY } = calculatePointCoordinates(

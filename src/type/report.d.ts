@@ -9,10 +9,14 @@ export type Report = {
   category: string;
 };
 
-export type PairedReportList = {
+export type PairedReport = {
   date: string;
   plan: ReportList | null;
   result: ReportList | null;
+};
+
+export type DisplayPairedReport = {
+  [key: string]: PairedReport | null;
 };
 export type ReportList = {
   report: Report;
@@ -43,6 +47,7 @@ export type CreateReportRes = VoidResponse;
 export type GetReportsReq = {
   date: string;
   category: string;
+  year_month: string;
 };
 
 export type GetReportsRes = {

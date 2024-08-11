@@ -25,9 +25,9 @@ export const reportApi = createApi({
       },
     }),
     getReports: builder.query<GetReportsRes, GetReportsReq>({
-      query: ({ date = "", category = "" }) => {
+      query: ({ date = "", category = "", year_month = "" }) => {
         return {
-          url: `/report/list?&date=${date}&category=${category}`,
+          url: `/report/list?&date=${date}&category=${category}&year_month=${year_month}`,
           method: "GET",
         };
       },

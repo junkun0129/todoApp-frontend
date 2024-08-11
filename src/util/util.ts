@@ -1,3 +1,5 @@
+import { DisplayPairedReport } from "../type/report";
+
 export const getTmQuery = () => {
   return "?tm=" + new Date().getTime() + Math.floor(Math.random() * 1000000);
 };
@@ -14,6 +16,13 @@ export const getReportTimestamp = () => {
 
   return formattedDate;
 };
+
+export function getCurrentMonth() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // getMonth() は 0-11 の範囲なので +1 する
+  return `${year}-${month}`;
+}
 
 export const formatDate = (isoDate) => {
   const date = new Date(isoDate);
@@ -84,4 +93,37 @@ export function findCircleSliceIndex(
   const sliceIndex = Math.floor(angle / sliceSize);
 
   return sliceIndex;
+}
+
+export function getDaysInMonth(yearMonth: string) {
+  // 年と月を抽出
+  const [year, month] = yearMonth.split("-").map(Number);
+
+  // 翌月の最初の日を取得し、日数を計算
+  const nextMonth = new Date(year, month, 1);
+  const daysInMonth = new Date(nextMonth.getTime() - 86400000).getDate();
+  return daysInMonth;
+}
+
+export function generateDateKeysObject(yearMonth: string): DisplayPairedReport {
+  // 年と月を抽出
+  const [year, month] = yearMonth.split("-").map(Number);
+
+  // 翌月の最初の日を取得し、日数を計算
+  const nextMonth = new Date(year, month, 1);
+  const daysInMonth = new Date(nextMonth.getTime() - 86400000).getDate();
+
+  // 結果を格納するオブジェクト
+  const dateKeysObject = {};
+
+  // 1日からその月の日数までループし、キーを作成
+  for (let day = 1; day <= daysInMonth; day++) {
+    // 日付を2桁の文字列にする
+    const dayStr = String(day).padStart(2, "0");
+    // 年月日形式のキーを作成
+    const key = `${yearMonth}-${dayStr}`;
+    // オブジェクトにキーを追加し、値はnullに設定
+    dateKeysObject[key] = null;
+  }
+  return dateKeysObject;
 }

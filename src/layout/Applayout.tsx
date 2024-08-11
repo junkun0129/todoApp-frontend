@@ -36,10 +36,12 @@ const AppLayout = () => {
             backgroundColor: themeColor.contentBg,
           }}
         >
-          <div style={{ zIndex: "10px" }} className="absolute">
+          {/* <div className="absolute">
             <BackIcon />
+          </div> */}
+          <div>
+            <Outlet />
           </div>
-          <Outlet />
         </Content>
       </div>
     </Layout>

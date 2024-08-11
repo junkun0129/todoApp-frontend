@@ -15,6 +15,7 @@ import ReportCreate from "./pages/ReportCreate";
 import TaskManagePage from "./pages/TaskManagePage";
 import UserReportManagePage from "./pages/UserReportManagePage";
 import MyReportPage from "./pages/MyReportPage";
+import AttendManage from "./pages/AttendManage";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -65,11 +66,7 @@ function App() {
             ></Route>
             <Route
               path={appRoute.attendCreate}
-              element={
-                <div className=" relative">
-                  <div className=" absolute w-[500px] h-[100px] bg-red-50"></div>
-                </div>
-              }
+              element={<AttendManage />}
             ></Route>
             <Route
               path={appRoute.taskManage}

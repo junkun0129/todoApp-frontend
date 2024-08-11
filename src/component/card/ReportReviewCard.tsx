@@ -2,6 +2,7 @@ import React from "react";
 import { ReportList } from "../../type/report";
 import AppCard from "./AppCard";
 import ReportCircle from "../datadisplay/ReportCircle";
+import { Button } from "antd";
 type Props = {
   date: string;
   result: ReportList | null;
@@ -30,21 +31,29 @@ const ReportReviewCard = ({ date, result, plan }: Props) => {
         </div>
         <div className=" flex justify-around items-center mt-6 ml-10 overscroll-auto">
           <div>
-            {plan && (
+            {plan ? (
               <ReportCircle
                 radius={circleR}
                 dailyTasks={plan.dailytasks}
                 maxHours={plan.report.hours}
               />
+            ) : (
+              <div>
+                <CreateReportButton />
+              </div>
             )}
           </div>
           <div>
-            {result && (
+            {result ? (
               <ReportCircle
                 radius={circleR}
                 dailyTasks={result.dailytasks}
                 maxHours={result.report.hours}
               />
+            ) : (
+              <div>
+                <CreateReportButton />
+              </div>
             )}
           </div>
         </div>
@@ -52,6 +61,10 @@ const ReportReviewCard = ({ date, result, plan }: Props) => {
       <div></div>
     </AppCard>
   );
+};
+
+const CreateReportButton = () => {
+  return <Button>日報作成</Button>;
 };
 
 export default ReportReviewCard;
